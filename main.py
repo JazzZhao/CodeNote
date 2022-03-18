@@ -55,4 +55,4 @@ def main():
     train_ch6(net, train_iter, test_iter, 10, 0.1, utils.try_gpu())
 
 if __name__ == "__main__":
-    main()
+    main() 
