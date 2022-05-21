@@ -1,0 +1,5 @@
+<!-- <video bindtouchstart="startHandel" loop="true" controls="false" autoplay="true" bindtouchend='endHandle' mode="widthFix"src="../resource/image/maikefeng.jpg" style="width: 750rpx; height: 1192rpx; display: inline-block; box-sizing: border-box; left: 0rpx; top: 0rpx"></video> -->
+<!-- <video src="http://www.w3school.com.cn/i/movie.mp4" autoplay="true" loop="true" controls="{{false}}" style="width: 750rpx; height: 1200rpx; display: inline-block; box-sizing: border-box; left: 0rpx; top: 0rpx">
+</video> -->
+
+<image src="https://img.zcool.cn/community/01c9c65d85bab5a801211d53499a91.gif" bindtouchstart="startHandel" bindtouchend='endHandle' style="width: 748rpx; height: 1194rpx; display: inline-block; box-sizing: border-box"></image>
