@@ -1,5 +1,21 @@
-<!-- <video bindtouchstart="startHandel" loop="true" controls="false" autoplay="true" bindtouchend='endHandle' mode="widthFix"src="../resource/image/maikefeng.jpg" style="width: 750rpx; height: 1192rpx; display: inline-block; box-sizing: border-box; left: 0rpx; top: 0rpx"></video> -->
-<!-- <video src="http://www.w3school.com.cn/i/movie.mp4" autoplay="true" loop="true" controls="{{false}}" style="width: 750rpx; height: 1200rpx; display: inline-block; box-sizing: border-box; left: 0rpx; top: 0rpx">
-</video> -->
-
-<image src="https://img.zcool.cn/community/01c9c65d85bab5a801211d53499a91.gif" bindtouchstart="startHandel" bindtouchend='endHandle' style="width: 748rpx; height: 1194rpx; display: inline-block; box-sizing: border-box"></image>
+<view style="width: 750rpx; height: 1150rpx; display: block; box-sizing: border-box">
+  <image src="https://img.zcool.cn/community/01c9c65d85bab5a801211d53499a91.gif" style="width: 750rpx; height: 1184rpx; display: inline-block; box-sizing: border-box; position: relative; left: 0rpx; top: -3rpx"></image>
+  <button bindtap="buttonHandel" data-value="不要摸我的头，我会生气的！" class="okbtn" 
+  style="position: fixed; top: 117rpx; width: 442rpx; height: 607rpx; display: block; box-sizing: border-box; left: 148rpx">
+  </button>
+  <button bindtap="buttonHandel"data-value="握握手好朋友！" class="okbtn"
+    style="position: relative; left: 207rpx; top: -469rpx; width: 250rpx; height: 300rpx; display: block; box-sizing: border-box">
+  </button>
+  <button bindtap="buttonHandel" data-value="握握手好朋友！" class="okbtn"
+  style="position: fixed; top: 723rpx; left: 36rpx; width: 250rpx; height: 300rpx; display: block; box-sizing: border-box">
+  </button>
+  <button bindtap="buttonHandel" data-value="拍拍肚子吃饱了" class="okbtn"
+  style="position: relative; left: 0rpx; top: -769rpx; width: 163rpx; height: 300rpx; display: block; box-sizing: border-box">
+  </button>
+  <button bindtap="buttonHandel" data-value="这是我的小脚脚，别摸" class="okbtn"
+  style="position: relative; left: -23rpx; top: -771rpx; width: 442rpx; height: 161rpx; display: block; box-sizing: border-box">
+  </button>
+  <button bindtouchstart="startHandel" bindtouchend="endHandle" class="okbtn" 
+    style="position: fixed; top: 1082rpx; height: 100rpx; width: 163rpx; left: 573rpx; font-size: 15px">按住说话
+</button>
+</view>

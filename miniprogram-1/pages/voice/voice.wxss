@@ -1,4 +1,8 @@
 /* pages/voice/voice.wxss */
+.okbtn{ 
+  background-color: transparent;   /*按钮透明*/
+  border:none
+}
 .position-absol{
   width: 100%;
   text-align: center;
