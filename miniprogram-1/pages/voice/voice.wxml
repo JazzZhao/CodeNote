@@ -1,21 +1,41 @@
-<view style="width: 750rpx; height: 1150rpx; display: block; box-sizing: border-box">
-  <image src="https://img.zcool.cn/community/01c9c65d85bab5a801211d53499a91.gif" style="width: 750rpx; height: 1184rpx; display: inline-block; box-sizing: border-box; position: relative; left: 0rpx; top: -3rpx"></image>
-  <button bindtap="buttonHandel" data-value="不要摸我的头，我会生气的！" class="okbtn" 
-  style="position: fixed; top: 117rpx; width: 442rpx; height: 607rpx; display: block; box-sizing: border-box; left: 148rpx">
-  </button>
-  <button bindtap="buttonHandel"data-value="握握手好朋友！" class="okbtn"
-    style="position: relative; left: 207rpx; top: -469rpx; width: 250rpx; height: 300rpx; display: block; box-sizing: border-box">
-  </button>
-  <button bindtap="buttonHandel" data-value="握握手好朋友！" class="okbtn"
-  style="position: fixed; top: 723rpx; left: 36rpx; width: 250rpx; height: 300rpx; display: block; box-sizing: border-box">
-  </button>
-  <button bindtap="buttonHandel" data-value="拍拍肚子吃饱了" class="okbtn"
-  style="position: relative; left: 0rpx; top: -769rpx; width: 163rpx; height: 300rpx; display: block; box-sizing: border-box">
-  </button>
-  <button bindtap="buttonHandel" data-value="这是我的小脚脚，别摸" class="okbtn"
-  style="position: relative; left: -23rpx; top: -771rpx; width: 442rpx; height: 161rpx; display: block; box-sizing: border-box">
-  </button>
-  <button bindtouchstart="startHandel" bindtouchend="endHandle" class="okbtn" 
-    style="position: fixed; top: 1082rpx; height: 100rpx; width: 163rpx; left: 573rpx; font-size: 15px">按住说话
+<view>
+     <view>
+        <view class="weui-search-bar">
+            <view class="weui-search-bar__form">
+            <!-- 最初始时的搜索框 -->
+                <view class="weui-search-bar__box">
+                    <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
+                    <input type="text" confirm-type="search" bindconfirm="search" name="inputValue" class="weui-search-bar__input" placeholder="搜索"/>
+                </view>
+                <!-- 可编辑时的搜索框 -->
+                <label class="weui-search-bar__label" hidden="{{inputShowed}}" bindtap="showInput">
+                    <icon class="weui-icon-search" type="search" size="14"></icon>
+                    <view class="weui-search-bar__text">搜索</view>
+                </label>
+            </view>
+            <!-- 取消搜索 -->
+            <view class="weui-search-bar__cancel-btn" hidden="{{!inputShowed}}" bindtap="hideInput">取消</view>
+        </view>
+    </view>
+</view>
+<view style="width: 750rpx; height: 1084rpx; position: relative;">
+  <image src="https://img.zcool.cn/community/01c9c65d85bab5a801211d53499a91.gif" style="width: 750rpx; height: 1084rpx; display: inline-block; box-sizing: border-box; position: relative; left: 0rpx; top: -32rpx"></image>
+<button bindtap="buttonHandel" data-value="不要摸我的头，我会生气的！" class="okbtn" 
+style="position: fixed; top: 117rpx; width: 442rpx; height: 607rpx; display: block; box-sizing: border-box; left: 148rpx">
+</button>
+<button bindtap="buttonHandel"data-value="握握手好朋友！" class="okbtn"
+  style="position: relative; left: 207rpx; top: -469rpx; width: 250rpx; height: 300rpx; display: block; box-sizing: border-box">
+</button>
+<button bindtap="buttonHandel" data-value="握握手好朋友！" class="okbtn"
+style="position: fixed; top: 723rpx; left: 36rpx; width: 250rpx; height: 300rpx; display: block; box-sizing: border-box">
+</button>
+<button bindtap="buttonHandel" data-value="拍拍肚子吃饱了" class="okbtn"
+style="position: relative; left: 0rpx; top: -769rpx; width: 163rpx; height: 300rpx; display: block; box-sizing: border-box">
+</button>
+<button bindtap="buttonHandel" data-value="这是我的小脚脚，别摸" class="okbtn"
+style="position: relative; left: -23rpx; top: -771rpx; width: 442rpx; height: 161rpx; display: block; box-sizing: border-box">
+</button>
+<button bindtouchstart="startHandel" bindtouchend="endHandle" class="okbtn" 
+  style="position: fixed; top: 1053rpx; height: 100rpx; width: 163rpx; left: 573rpx; font-size: 15px">按住说话
 </button>
 </view>

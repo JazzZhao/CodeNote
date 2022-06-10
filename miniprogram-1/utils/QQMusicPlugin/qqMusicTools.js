@@ -9,7 +9,7 @@ function searchMusic(number, keyword) {
       method: 'GET',
       success: function (res) {
         console.log("at music search: 音乐搜索成功")
-        resolve(res.data.result.songs[0])
+        resolve(res.data.result.songs)
       },
       fail: function (res) {
         console.log("at music search: 音乐搜索失败")
@@ -86,7 +86,7 @@ function getTopMusic() {
 	return new Promise((resolve, reject) => {
 		var getUrl = "https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg?g_tk=5381&uin=0&format=json&inCharset=utf-8&outCharset=utf-8¬ice=0&platform=h5&needNewCode=1&tpl=3&page=detail&type=top&topid=27&_=1519963122923"
 		wx.request({
-			url: getUrl,
+      url: getUrl,
 			method: 'get',
 			success: function(res) {
 				console.log("at get top music: 获取音乐Top100歌单成功")
@@ -105,18 +105,20 @@ function getTopMusic() {
 // QQ音乐随机推荐
 function randomRecommend() {
 	return new Promise((resolve, reject) => {
-		var getUrl = "https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg?g_tk=5381&uin=0&format=json&inCharset=utf-8&outCharset=utf-8¬ice=0&platform=h5&needNewCode=1&tpl=3&page=detail&type=top&topid=36&_=1520777874472"
+    var getUrl = "https://www.qiuziyuan.net/vip/api.php?out=jsonp&flag=4&id=11634"
 		wx.request({
-			url: getUrl,
-			method: 'GET',
+      url: getUrl,
+      header: {
+        'referer':'https://www.qiuziyuan.net/vip/?index11634-4-1.htm'
+      },
 			success: function(res) {
 				console.log("at random recommend: 获取随机推荐歌曲成功")
-				// console.log(res)
+				console.log(res)
 				resolve(res)
 			},
 			fail: function(res) {
 				console.log("at random recommend: 获取随机推荐歌曲失败")
-				// console.log(res)
+				console.log(res)
 				reject(res)
 			}
 		})
