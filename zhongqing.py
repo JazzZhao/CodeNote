@@ -11,11 +11,11 @@ class Utils:
         y = self.driver.get_window_size()['height']  #height为y坐标
         return (x, y)
 
-    def swipeUp(self,t):  #当前向上滑动swipeup
+    def swipeUp(self,start_x=0.5, start_y=0.75, end_y=0.25, t=1000):  #当前向上滑动swipeup
         l = self.getSize()
-        x1 = int(l[0] * 0.5)  
-        y1 = int(l[1] * 0.75)   
-        y2 = int(l[1] * 0.25)   
+        x1 = int(l[0] * start_x)  
+        y1 = int(l[1] * start_y)   
+        y2 = int(l[1] * end_y)   
         self.driver.swipe(x1, y1, x1, y2, t)  #设置时间为500
 
     def swipLeft(self, t):      #当前向左进行滑动swipleft
@@ -56,25 +56,50 @@ def load_driver():
 #浏览文章 
 def browse_articles(driver):
     print("=====开始读取文章=====")
-    while(True):
+    num_article = 1
+    while(num_article<70):
         #获取当前页面的文章
-        articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/aj_")
+        articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
         for i in range(len(articles)):
+            print(f"====开始读第{num_article}篇")
             #按顺序点击文章
             articles[i].click()
+            time.sleep(5)
             utils = Utils(driver)
-            for i in range(8):
-                if i%2==0 :
-                    utils.swipeUp(500)
-                else:
-                    utils.swipeDown(1000)
-                time.sleep(5) #TODO
+            for i in range(5):
+                utils.swipeUp(t=1000)
+                tmp = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.view.View")
+                for i in range(len(tmp)):
+                    if(tmp[i].text.find("查看全文") != -1):
+                        tmp[i].click()
+                        break
+                time.sleep(5) 
             #返回
             driver.back()
+            num_article = num_article + 1
         #上划
         utils = Utils(driver)
-        utils.swipeUp(1000)
-        driver.quit()
+        utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
+#浏览视频
+def browse_video(driver):
+    print("=====开始浏览视频=====")
+    num_video = 1
+    while(num_video<11):
+        #获取当前页面的视频
+        videos = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
+        for i in range(len(videos)):
+            print(f"====开始浏览第{num_video}个")
+            #按顺序点击视频
+            videos[i].click()
+            time.sleep(5)
+            time.sleep(20)
+            #返回
+            driver.back()
+            num_article = num_article + 1
+        #上划
+        utils = Utils(driver)
+        utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
+
 #判断是否完成文章任务
 def is_compl_task(driver):
     tasks_dic = {}
@@ -85,7 +110,7 @@ def is_compl_task(driver):
     utils.swipeUp(500)
     #展开
     while driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/aeo"):
-        driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/aeo").click
+        driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/aeo").click()
     #获取部分任务
     tasks = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agn")
     for i in range(len(tasks)):
@@ -104,10 +129,22 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    driver = load_driver() 
-    time.sleep(10)
+    driver = load_driver()
+    time.sleep(20)
+    # is_compl_task(driver)
+    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 视频")
+    try:
+        if type == 'all':
+            browse_articles(driver)
+            browse_video(driver)
+        elif type == 1:
+            browse_articles(driver)
+        elif type == 2:
+            browse_video(driver)
+    except Exception as e:
+        print(e)
+    finally:
+        driver.quit()
 
-    is_compl_articles(driver)
-    # browse_articles(driver)
     
     

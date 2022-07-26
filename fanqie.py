@@ -2,6 +2,7 @@ from webbrowser import get
 from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
 import time
+import random
 
 class Utils:
     def __init__(self, driver=None) :
@@ -52,10 +53,30 @@ def load_driver():
     }
     return webdriver.Remote("http://127.0.0.1:4723/wd/hub",desired_caps)
 
+def read_xiaoshuo(driver):
+     #点击书架
+    print("=====点击书架=====")
+    driver.find_element(by=AppiumBy.ID, value="com.dragon.read:id/og").click()
+    #点击第一本书
+    time.sleep(10)
+    print("=====点击第一本书=====")
+    driver.find_elements(by=AppiumBy.ID, value="com.dragon.read:id/aup")[0].click()
+    time.sleep(5)
+    driver.find_element(by=AppiumBy.ID, value="com.dragon.read:id/pp").click()
+    #循环读书
+    utils = Utils(driver)
+    tmp = 1
+    while(True):
+        print(f"=====读{tmp}页=====")
+        time.sleep(random.randint(1,20))
+        utils.swipLeft(500)
+        tmp = tmp + 1
 
 
 if __name__ == "__main__":
     driver = load_driver() 
     print("=====开启应用结束=====")
-    time.sleep(5)
+    time.sleep(20)
+    print("=====开始读书=====")
+    read_xiaoshuo(driver)
     
