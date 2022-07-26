@@ -138,9 +138,6 @@ def browse_look(driver):
                 utils.swipeDown(t=100)
 
 
-
-
-
 #判断是否完成文章任务
 def is_compl_task(driver):
     tasks_dic = {}
