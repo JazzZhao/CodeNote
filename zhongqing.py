@@ -78,7 +78,6 @@ def browse_articles(driver):
             driver.back()
             num_article = num_article + 1
         #上划
-        utils = Utils(driver)
         utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
 #浏览视频
 def browse_video(driver):
@@ -100,11 +99,53 @@ def browse_video(driver):
         utils = Utils(driver)
         utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
 
+#赚赚看
+def browse_look(driver):
+    print("=====开始浏览看看赚=====")
+    utils = Utils(driver)
+    #点击任务列表
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vi").click()
+    time.sleep(5)
+    #点击看看赚
+    print("=====点击看看赚=====")
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ac_").click()
+    time.sleep(5)
+    #循环下面任务
+    for i in range(50):
+        tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
+        print("=====开始找任务=====")
+        if(tasks[i].text.find("进行中") != -1 or  tasks[i].text.find("去完成") != -1):
+            tasks[i].click()
+            time.sleep(10)
+            before_page = driver.page_source
+            time.sleep(15)
+            afer_page = driver.page_source
+            #判断是否自动刷新
+            if before_page == afer_page:
+                #点击链接
+                for i in range(8):
+                    images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+                    images[i].click()
+                    time.sleep(15)
+                    utils.swipeUp(t=100)
+                    time.sleep(2)
+                    #返回
+                    driver.back()
+                    time.sleep(5)
+                
+            else:
+                utils.swipeUp(t=100)
+                utils.swipeDown(t=100)
+
+
+
+
+
 #判断是否完成文章任务
 def is_compl_task(driver):
     tasks_dic = {}
     #点击任务列表
-    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/x7").click()
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vi").click()
     get_tasks(driver, tasks_dic)
     utils = Utils(driver)
     utils.swipeUp(500)
@@ -130,17 +171,20 @@ def get_tasks(driver, tasks_dic):
 
 if __name__ == "__main__":
     driver = load_driver()
-    time.sleep(20)
     # is_compl_task(driver)
-    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 视频")
+    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 视频\n 3 ===> 看看赚\n")
+    time.sleep(5)
     try:
         if type == 'all':
             browse_articles(driver)
             browse_video(driver)
-        elif type == 1:
+            browse_look(driver)
+        elif type == '1':
             browse_articles(driver)
-        elif type == 2:
+        elif type == '2':
             browse_video(driver)
+        elif type == '3':
+            browse_look(driver)
     except Exception as e:
         print(e)
     finally:
