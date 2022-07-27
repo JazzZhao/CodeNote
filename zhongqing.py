@@ -160,7 +160,7 @@ def get_tasks(driver, tasks_dic):
 if __name__ == "__main__":
     driver = load_driver()
     # is_compl_task(driver)
-    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
+    type = input("======输入类型======\n 全部类型 ===> all\n 文章 ===> 1\n 看看赚 ===> 2\n")
     time.sleep(5)
     try:
         if type == 'all':
