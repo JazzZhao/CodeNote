@@ -56,10 +56,17 @@ def load_driver():
 #浏览文章 
 def browse_articles(driver):
     print("=====开始读取文章=====")
+    #点击首页
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
+    time.sleep(2)
     num_article = 1
-    while(num_article<70):
+    while(num_article<=10):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
+        while len(articles) == 0:
+            utils.swipeUp(t=100)
+            time.sleep(2)
+            articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
         for i in range(len(articles)):
             print(f"====开始读第{num_article}篇")
             #按顺序点击文章
@@ -79,25 +86,6 @@ def browse_articles(driver):
             num_article = num_article + 1
         #上划
         utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
-#浏览视频
-def browse_video(driver):
-    print("=====开始浏览视频=====")
-    num_video = 1
-    while(num_video<11):
-        #获取当前页面的视频
-        videos = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
-        for i in range(len(videos)):
-            print(f"====开始浏览第{num_video}个")
-            #按顺序点击视频
-            videos[i].click()
-            time.sleep(5)
-            time.sleep(20)
-            #返回
-            driver.back()
-            num_article = num_article + 1
-        #上划
-        utils = Utils(driver)
-        utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
 
 #赚赚看
 def browse_look(driver):
@@ -113,8 +101,8 @@ def browse_look(driver):
     #循环下面任务
     for i in range(50):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
-        print("=====开始找任务=====")
         if(tasks[i].text.find("进行中") != -1 or  tasks[i].text.find("去完成") != -1):
+            print(f"=====找到一个任务=====")
             tasks[i].click()
             time.sleep(10)
             before_page = driver.page_source
@@ -123,9 +111,12 @@ def browse_look(driver):
             #判断是否自动刷新
             if before_page == afer_page:
                 #点击链接
-                for i in range(8):
+                for i in range(6):
                     images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-                    images[i].click()
+                    if i>= len(images):
+                        images[0].click()
+                    else:
+                        images[i].click()
                     time.sleep(15)
                     utils.swipeUp(t=100)
                     time.sleep(2)
@@ -169,18 +160,16 @@ def get_tasks(driver, tasks_dic):
 if __name__ == "__main__":
     driver = load_driver()
     # is_compl_task(driver)
-    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 视频\n 3 ===> 看看赚\n")
+    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
     time.sleep(5)
     try:
         if type == 'all':
             browse_articles(driver)
-            browse_video(driver)
             browse_look(driver)
+            browse_articles(driver)
         elif type == '1':
             browse_articles(driver)
         elif type == '2':
-            browse_video(driver)
-        elif type == '3':
             browse_look(driver)
     except Exception as e:
         print(e)

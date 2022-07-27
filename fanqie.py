@@ -45,8 +45,8 @@ def load_driver():
     # 会话配置
     desired_caps = {
             "platformName":"Android",
-            "platformVersion":"9.0.0",
-            "deviceName":"127.0.0.1:62001",
+            "platformVersion":"10.0.0",
+            "deviceName":"7XBNW18901004436",
             "appPackage":"com.dragon.read",
             "appActivity":"com.dragon.read.pages.splash.SplashActivity",
             "noReset": True
