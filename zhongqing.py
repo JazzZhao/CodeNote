@@ -25,11 +25,11 @@ class Utils:
         x2=int(l[0]*0.05)
         self.driver.swipe(x1,y1,x2,y1, t)
 
-    def swipeDown(self, t):    #向下滑动swipedown
+    def swipeDown(self,start_x=0.5, start_y=0.25, end_y=0.75, t=1000):    #向下滑动swipedown
         l = self.getSize()
-        x1 = int(l[0] * 0.5)
-        y1 = int(l[1] * 0.25)
-        y2 = int(l[1] * 0.75)
+        x1 = int(l[0] * start_x)
+        y1 = int(l[1] * start_y)
+        y2 = int(l[1] * end_y)
         self.driver.swipe(x1, y1, x1, y2, t)
 
     def swipRight(self, t): #向右滑行swipright
@@ -49,6 +49,14 @@ class Utils:
     #检查页面特征
     def check_page(self, feature = "javascript:;"):
         return (feature in self.driver.page_source)
+
+    #在搜索页面来回划动防止自动刷新
+    def up_down_roll(self):
+        tmp = 1
+        while tmp < 6:
+            self.swipeUp(start_y=0.55, end_y=0.5, t=0)
+            self.swipeDown(start_y=0.5, end_y=0.55, t=0)
+            tmp = tmp + 1
 
 #加载APP
 def load_driver():
@@ -115,16 +123,21 @@ def browse_look(driver):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
         while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
             task_num = task_num + 1
-        print(f"=====找到一个任务=====")
+        print(f"=====找到第{t+1}个任务=====")
         tasks[task_num].click()
-        print("=====防止自动刷新,进入目标首页=====")
-        time.sleep(20)
+        time.sleep(1)
+        if utils.check_page():
+            print("=====搜索页等待自动刷新进入目标首页=====")
+            time.sleep(20)
+        else:
+            print("=====正常首页，不用等待")
+            time.sleep(1)
         one_num = 0
         #不是搜索页面，就进行点击，并且只划动7次
-        while one_num < 7:
+        while one_num < 6:
             if utils.check_page() or utils.check_page("百度一下"):
-                print("=====进入了搜索页面，下滑，返回")
-                utils.swipeUp(t=100)
+                print("=====进入了搜索页面，滑动，返回")
+                utils.up_down_roll()
                 break
             else:
                 #获取图片链接
@@ -136,21 +149,30 @@ def browse_look(driver):
                         images[one_num].click()
                     print("=====点击图片跳转=====")
                     time.sleep(2)
-                    #只有搜索页面才划动,从目标首页点击后，可能进入非搜索页（如山飘白雪任务）
-                    # if not utils.check_page():
-                    #     images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-                    #     images[0].click()
-                    #     print("=====点击图片跳转=====")
-                    #     time.sleep(15)
-                    time.sleep(13)
-                    utils.swipeUp(t=100)
+                    #这里需要特殊处理含有弹窗的情况(风细柳斜)
+                    if utils.check_page(feature="close"):
+                        #重新获取图片点击
+                        images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+                        images[len(images)-1].click()
+                        time.sleep(1)
+                    #开始上下滑动
+                    utils.up_down_roll()
                     one_num = one_num + 1
-                    time.sleep(2)
                     #返回
-                    print("=====页面返回=====")
-                    driver.back()
-                    time.sleep(15)
+                    if utils.check_page():
+                        print("=====页面返回=====")
+                        driver.back()
+                    else:
+                        print("=====不是搜索页面不用返回=====")
+                    time.sleep(1)
+                    if utils.check_page():
+                        print("=====搜索页等待自动刷新进入目标首页=====")
+                        time.sleep(15)
+                    else:
+                        print("=====正常首页，不用等待")
+                        time.sleep(1)
                 else:
+                    print("=====片面不含图片=====")
                     task_num = task_num + 1
                     break
         while not utils.check_page('浏览赚'):
