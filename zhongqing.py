@@ -63,10 +63,10 @@ def load_driver():
     }
     return webdriver.Remote("http://127.0.0.1:4723/wd/hub",desired_caps)
 
-
 #浏览文章 
 def browse_articles(driver, num):
     print("=====开始读取文章=====")
+    utils = Utils(driver)
     #点击首页
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
@@ -78,18 +78,17 @@ def browse_articles(driver, num):
             utils.swipeUp(t=100)
             time.sleep(2)
             articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
-        for i in range(len(articles)):
+        for i_art in range(len(articles)):
             print(f"====开始读第{num_article}篇")
             #按顺序点击文章
-            articles[i].click()
+            articles[i_art].click()
             time.sleep(5)
-            utils = Utils(driver)
-            for i in range(5):
+            for _ in range(5):
                 utils.swipeUp(t=1000)
                 tmp = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.view.View")
-                for i in range(len(tmp)):
-                    if(tmp[i].text.find("查看全文") != -1):
-                        tmp[i].click()
+                for quan_num in range(len(tmp)):
+                    if(tmp[quan_num].text.find("查看全文") != -1):
+                        tmp[quan_num].click()
                         break
                 time.sleep(5) 
             #返回
@@ -97,6 +96,7 @@ def browse_articles(driver, num):
             num_article = num_article + 1
         #上划
         utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
+        time.sleep(2)
 
 #赚赚看
 def browse_look(driver):
@@ -117,36 +117,42 @@ def browse_look(driver):
             task_num = task_num + 1
         print(f"=====找到一个任务=====")
         tasks[task_num].click()
-        time.sleep(15)
+        print("=====防止自动刷新,进入目标首页=====")
+        time.sleep(20)
         one_num = 0
         #不是搜索页面，就进行点击，并且只划动7次
-        while one_num < 7  and not utils.check_page() and not utils.check_page("百度一下"):
-            #获取图片链接
-            images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-            if len(images)>0:
-                if one_num>= len(images):
-                    images[0].click()
-                else:
-                    images[one_num].click()
-                print("=====点击图片跳转=====")
-                time.sleep(2)
-                #只有搜索页面才划动
-                while not utils.check_page():
-                    images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-                    images[0].click()
-                    print("=====点击图片跳转=====")
-                    time.sleep(15)
-                time.sleep(13)
+        while one_num < 7:
+            if utils.check_page() or utils.check_page("百度一下"):
+                print("=====进入了搜索页面，下滑，返回")
                 utils.swipeUp(t=100)
-                one_num = one_num + 1
-                time.sleep(2)
-                #返回
-                print("=====页面返回=====")
-                driver.back()
-                time.sleep(5)
-            else:
-                task_num = task_num + 1
                 break
+            else:
+                #获取图片链接
+                images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+                if len(images)>0:
+                    if one_num>= len(images):
+                        images[0].click()
+                    else:
+                        images[one_num].click()
+                    print("=====点击图片跳转=====")
+                    time.sleep(2)
+                    #只有搜索页面才划动,从目标首页点击后，可能进入非搜索页（如山飘白雪任务）
+                    # if not utils.check_page():
+                    #     images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+                    #     images[0].click()
+                    #     print("=====点击图片跳转=====")
+                    #     time.sleep(15)
+                    time.sleep(13)
+                    utils.swipeUp(t=100)
+                    one_num = one_num + 1
+                    time.sleep(2)
+                    #返回
+                    print("=====页面返回=====")
+                    driver.back()
+                    time.sleep(15)
+                else:
+                    task_num = task_num + 1
+                    break
         while not utils.check_page('浏览赚'):
             print("=====页面返回=====")
             driver.back()
@@ -181,12 +187,11 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    driver = load_driver()
-    # is_compl_task(driver)
     type = input("======输入类型======\n 全部类型 ===> all\n 文章 ===> 1\n 看看赚 ===> 2\n")
-    time.sleep(5)
-    try:
-        while not type=='':
+    while not type=='':
+        try:
+            driver = load_driver()
+            time.sleep(5)
             if type == 'all':
                 num = input("请输入读取文章的篇数：\n")
                 browse_articles(driver, int(num))
@@ -196,11 +201,11 @@ if __name__ == "__main__":
                 browse_articles(driver, int(num))
             elif type == '2':
                 browse_look(driver)
-            type = input("是否继续，退出请直接按回车,继续请输入下列类型：\n======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
-    except Exception as e:
-        print(e)
-    finally:
-        driver.quit()
+        except Exception as e:
+            print(e)
+        finally:
+            driver.quit()
+        type = input("是否继续，退出请直接按回车,继续请输入下列类型：\n======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
 
     
     
