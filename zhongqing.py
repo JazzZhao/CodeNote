@@ -39,6 +39,17 @@ class Utils:
         x2=int(l[0]*0.75)
         self.driver.swipe(x1,y1,x2,y1, t)
 
+    #比较页面有没有变化
+    def is_similar(self):
+        before_page = self.driver.page_source
+        time.sleep(10)
+        after_page = self.driver.page_source
+        return before_page == after_page
+
+    #检查页面特征
+    def check_page(self, feature = "javascript:;"):
+        return (feature in self.driver.page_source)
+
 #加载APP
 def load_driver():
     # 会话配置
@@ -99,34 +110,46 @@ def browse_look(driver):
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ac_").click()
     time.sleep(5)
     #循环下面任务
-    for i in range(50):
+    task_num = 0
+    for t in range(10):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
-        if(tasks[i].text.find("进行中") != -1 or  tasks[i].text.find("去完成") != -1):
-            print(f"=====找到一个任务=====")
-            tasks[i].click()
-            time.sleep(10)
-            before_page = driver.page_source
-            time.sleep(15)
-            afer_page = driver.page_source
-            #判断是否自动刷新
-            if before_page == afer_page:
-                #点击链接
-                for i in range(6):
+        while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
+            task_num = task_num + 1
+        print(f"=====找到一个任务=====")
+        tasks[task_num].click()
+        time.sleep(15)
+        one_num = 0
+        #不是搜索页面，就进行点击，并且只划动7次
+        while one_num < 7  and not utils.check_page() and not utils.check_page("百度一下"):
+            #获取图片链接
+            images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+            if len(images)>0:
+                if one_num>= len(images):
+                    images[0].click()
+                else:
+                    images[one_num].click()
+                print("=====点击图片跳转=====")
+                time.sleep(2)
+                #只有搜索页面才划动
+                while not utils.check_page():
                     images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-                    if i>= len(images):
-                        images[0].click()
-                    else:
-                        images[i].click()
+                    images[0].click()
+                    print("=====点击图片跳转=====")
                     time.sleep(15)
-                    utils.swipeUp(t=100)
-                    time.sleep(2)
-                    #返回
-                    driver.back()
-                    time.sleep(5)
-                
-            else:
+                time.sleep(13)
                 utils.swipeUp(t=100)
-                utils.swipeDown(t=100)
+                one_num = one_num + 1
+                time.sleep(2)
+                #返回
+                print("=====页面返回=====")
+                driver.back()
+                time.sleep(5)
+            else:
+                task_num = task_num + 1
+                break
+        while not utils.check_page('浏览赚'):
+            print("=====页面返回=====")
+            driver.back()
 
 
 #判断是否完成文章任务
@@ -160,7 +183,7 @@ def get_tasks(driver, tasks_dic):
 if __name__ == "__main__":
     driver = load_driver()
     # is_compl_task(driver)
-    type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
+    type = input("======输入类型======\n 全部类型 ===> all\n 文章 ===> 1\n 看看赚 ===> 2\n")
     time.sleep(5)
     try:
         while not type=='':
