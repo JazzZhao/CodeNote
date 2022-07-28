@@ -54,13 +54,13 @@ def load_driver():
 
 
 #浏览文章 
-def browse_articles(driver):
+def browse_articles(driver, num):
     print("=====开始读取文章=====")
     #点击首页
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
     num_article = 1
-    while(num_article<=10):
+    while(num_article<=num):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
         while len(articles) == 0:
@@ -163,14 +163,17 @@ if __name__ == "__main__":
     type = input("======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
     time.sleep(5)
     try:
-        if type == 'all':
-            browse_articles(driver)
-            browse_look(driver)
-            browse_articles(driver)
-        elif type == '1':
-            browse_articles(driver)
-        elif type == '2':
-            browse_look(driver)
+        while not type=='':
+            if type == 'all':
+                num = input("请输入读取文章的篇数：\n")
+                browse_articles(driver, int(num))
+                browse_look(driver)
+            elif type == '1':
+                num = input("请输入读取文章的篇数：\n")
+                browse_articles(driver, int(num))
+            elif type == '2':
+                browse_look(driver)
+            type = input("是否继续，退出请直接按回车,继续请输入下列类型：\n======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
     except Exception as e:
         print(e)
     finally:
