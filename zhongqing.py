@@ -57,6 +57,20 @@ class Utils:
             self.swipeUp(start_y=0.55, end_y=0.5, t=0)
             self.swipeDown(start_y=0.5, end_y=0.55, t=0)
             tmp = tmp + 1
+    #能够进行的标题
+    def get_title_do(self):
+        return ['今日看点','今日热讯',"今日热搜",'八卦资讯']
+    
+    #跳出进来的标题
+    def get_turn_out_title():
+        return []
+    #进来先点关闭按键的标题
+    def get_close_title():
+        return []
+
+    #需要先点击
+    def get_click_title():
+        return ['巨资讯','一点生活趣事']
 
 #加载APP
 def load_driver():
@@ -136,6 +150,8 @@ def browse_look(driver):
         tasks[task_num].click()
         #需要增加网速不好没刷出来页面的等待
         time.sleep(1)
+        #打印标题
+        print(driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/an6").text)
         if utils.check_page():
             print("=====搜索页等待自动刷新进入目标首页=====")
             time.sleep(15)
@@ -153,6 +169,9 @@ def browse_look(driver):
             else:
                 #获取图片链接
                 images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+                if len(images) == 0:
+                    #使用content-desc来获取
+                    images = driver.find_elements(by=AppiumBy.XPATH, value = "//*[contains(@content-desc, 'sogou')]")
                 if len(images)>0:
                     if one_num>= len(images):
                         images[len(images)-1].click()
