@@ -72,24 +72,30 @@ def load_driver():
     return webdriver.Remote("http://127.0.0.1:4723/wd/hub",desired_caps)
 
 #浏览文章 
-def browse_articles(driver, num):
+def browse_articles(driver):
     print("=====开始读取文章=====")
     utils = Utils(driver)
     #点击首页
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
     num_article = 1
-    while(num_article<=num):
+    while(num_article<=20):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
         while len(articles) == 0:
+            print("没有找到文章")
             utils.swipeUp(t=100)
             time.sleep(2)
             articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
-        for i_art in range(len(articles)):
+        print(f"一共找到{len(articles)}篇文章")
+        for art in articles:
             print(f"====开始读第{num_article}篇")
             #按顺序点击文章
-            articles[i_art].click()
+            try:
+                art.click()
+            except Exception as e:
+                print("点击文章报错了！上划继续！")
+                break
             time.sleep(5)
             for _ in range(5):
                 utils.swipeUp(t=1000)
@@ -108,6 +114,7 @@ def browse_articles(driver, num):
 
 #赚赚看
 def browse_look(driver):
+    #TODO 解决首页和搜索页在一起的情况
     print("=====开始浏览看看赚=====")
     utils = Utils(driver)
     #点击任务列表
@@ -119,34 +126,38 @@ def browse_look(driver):
     time.sleep(5)
     #循环下面任务
     task_num = 0
-    for t in range(10):
+    #没有图片的个数
+    non_img = 0
+    for t in range(20):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
         while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
             task_num = task_num + 1
         print(f"=====找到第{t+1}个任务=====")
         tasks[task_num].click()
+        #需要增加网速不好没刷出来页面的等待
         time.sleep(1)
         if utils.check_page():
             print("=====搜索页等待自动刷新进入目标首页=====")
-            time.sleep(20)
+            time.sleep(15)
         else:
             print("=====正常首页，不用等待")
             time.sleep(1)
         one_num = 0
         #不是搜索页面，就进行点击，并且只划动7次
         while one_num < 6:
-            if utils.check_page() or utils.check_page("百度一下"):
+            if utils.check_page() or utils.check_page("百度一下") or utils.check_page("搜狗搜索"):
                 print("=====进入了搜索页面，滑动，返回")
                 utils.up_down_roll()
+                task_num = task_num + 1
                 break
             else:
                 #获取图片链接
                 images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
                 if len(images)>0:
                     if one_num>= len(images):
-                        images[0].click()
+                        images[len(images)-1].click()
                     else:
-                        images[one_num].click()
+                        images[len(images)-1-one_num].click()
                     print("=====点击图片跳转=====")
                     time.sleep(2)
                     #这里需要特殊处理含有弹窗的情况(风细柳斜)
@@ -159,20 +170,21 @@ def browse_look(driver):
                     utils.up_down_roll()
                     one_num = one_num + 1
                     #返回
-                    if utils.check_page():
+                    if utils.check_page() or utils.check_page("百度一下") or utils.check_page("搜狗搜索"):
                         print("=====页面返回=====")
                         driver.back()
                     else:
                         print("=====不是搜索页面不用返回=====")
                     time.sleep(1)
-                    if utils.check_page():
+                    if utils.check_page() or utils.check_page("百度一下") or utils.check_page("搜狗搜索"):
                         print("=====搜索页等待自动刷新进入目标首页=====")
                         time.sleep(15)
                     else:
                         print("=====正常首页，不用等待")
                         time.sleep(1)
                 else:
-                    print("=====片面不含图片=====")
+                    non_img = non_img + 1
+                    print(f"====={non_img}个页面不含图片=====")
                     task_num = task_num + 1
                     break
         while not utils.check_page('浏览赚'):
@@ -209,25 +221,16 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    type = input("======输入类型======\n 全部类型 ===> all\n 文章 ===> 1\n 看看赚 ===> 2\n")
-    while not type=='':
+    for i in range(3):
         try:
             driver = load_driver()
             time.sleep(5)
-            if type == 'all':
-                num = input("请输入读取文章的篇数：\n")
-                browse_articles(driver, int(num))
-                browse_look(driver)
-            elif type == '1':
-                num = input("请输入读取文章的篇数：\n")
-                browse_articles(driver, int(num))
-            elif type == '2':
-                browse_look(driver)
+            # browse_articles(driver)
+            browse_look(driver)
         except Exception as e:
             print(e)
         finally:
-            driver.quit() 
-        type = input("是否继续，退出请直接按回车,继续请输入下列类型：\n======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
-
+            driver.quit()
+    
     
     
