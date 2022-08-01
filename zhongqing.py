@@ -226,7 +226,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
         finally:
-            driver.quit()
+            driver.quit() 
         type = input("是否继续，退出请直接按回车,继续请输入下列类型：\n======输入类型======\n all ===> 全部类型\n 1 ===> 文章\n 2 ===> 看看赚\n")
 
     
