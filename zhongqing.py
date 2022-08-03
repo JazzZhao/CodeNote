@@ -59,7 +59,7 @@ class Utils:
             tmp = tmp + 1
     #能够进行的标题
     def get_title_do(self):
-        return ['今日看点','今日热讯',"今日热搜",'八卦资讯']
+        return ['今日看点','今日热讯',"今日热搜",'八卦资讯','新闻天天看-每日必读']
     
     #跳出进来的标题
     def get_turn_out_title():
@@ -93,6 +93,7 @@ def browse_articles(driver):
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
     num_article = 1
+    flash_flag = True
     while(num_article<=20):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
@@ -122,9 +123,15 @@ def browse_articles(driver):
             #返回
             driver.back()
             num_article = num_article + 1
-        #上划
-        utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
-        time.sleep(2)
+        if flash_flag:
+            #下划
+            utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
+            flash_flag = False
+        else:
+            #点击首页
+            driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
+            flash_flag = True
+        time.sleep(2)     
 
 #赚赚看
 def browse_look(driver):
@@ -240,7 +247,7 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    for i in range(3):
+    for i in range(4):
         try:
             driver = load_driver()
             time.sleep(5)
