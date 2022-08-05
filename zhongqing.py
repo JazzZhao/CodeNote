@@ -75,17 +75,17 @@ class Utils:
             time.sleep(1)
 
     #有次首页的标题，需要
-    def get_secondary_title():
+    def get_secondary_title(self):
         return ['非凡资讯']
     #搜索标题的处理
-    def get_search_title():
+    def get_search_title(self):
         return ['搜索']
     #进来先点关闭按键的标题
-    def get_close_title():
+    def get_close_title(self):
         return []
 
     #需要先点击
-    def get_click_title():
+    def get_click_title(self):
         return ['巨资讯','一点生活趣事']
 
 #加载APP
@@ -94,7 +94,7 @@ def load_driver():
     desired_caps = {
             "platformName":"Android",
             "platformVersion":"10.0.0",
-            "deviceName":"7XBNW18901004436",
+            "deviceName":"192.168.0.154:5555",
             "appPackage":"cn.youth.news",
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
             "noReset": True
@@ -181,6 +181,7 @@ def browse_look(driver):
         while not utils.check_page('浏览赚'):
             print("=====页面返回=====")
             driver.back()
+        t = t + 1
 
 #浏览文章 
 def browse_articles(driver):
@@ -259,10 +260,10 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    for i in range(4):
+    while True:
         try:
             driver = load_driver()
-            time.sleep(5)
+            time.sleep(10)
             # browse_articles(driver)
             browse_look(driver)
         except Exception as e:
