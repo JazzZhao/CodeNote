@@ -55,24 +55,36 @@ class Utils:
     #在搜索页面来回划动防止自动刷新
     def up_down_roll(self, num):
         tmp = 1
-        while tmp < num:
+        while tmp <= num:
             self.swipeUp(start_y=0.55, end_y=0.5, t=0)
             self.swipeDown(start_y=0.5, end_y=0.55, t=0)
             tmp = tmp + 1
-    #搜索页面多等待N秒
-    def wait_search(self, t):
-        #检查是否是搜索页面
-        flag = False
-        for tmp in self.search:
-            if self.check_page(tmp):
-                flag = True
-                break
-        if flag:
-            print("=====搜索页等待自动刷新进入目标首页=====")
-            self.up_down_roll(t)
-        else:
-            print("=====非搜索，不用等待")
-            time.sleep(1)
+    #####获取广告的图片######
+    def get_images(self):
+        #获取图片链接
+        images = self.driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
+        if len(images) == 0:
+            #使用content-desc来获取
+            images = self.driver.find_elements(by=AppiumBy.XPATH, value = "//*[contains(@content-desc, 'sogou')]")
+        return images
+    #####普通看看赚处理######
+    def common_kan(self, time):
+        one_num = 0
+        while one_num < 6:
+            images = self.get_images()
+            if one_num>= len(images):
+                images[len(images)-1].click()
+            else:
+                images[one_num].click()
+            one_num = one_num + 1
+            print("=====点击图片跳转=====")
+            #开始上下滑动
+            self.up_down_roll(8)
+            #返回
+            print("=====页面返回=====")
+            driver.back()
+            print(f"=====当前返回等待{time}s")
+            self.up_down_roll(time)
 
     #有次首页的标题，需要
     def get_secondary_title(self):
@@ -110,7 +122,7 @@ def browse_look(driver):
     time.sleep(5)
     #点击看看赚
     print("=====点击看看赚=====")
-    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ac_").click()
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ac8").click()
     time.sleep(5)
     #循环下面任务
     task_num = 0
@@ -126,58 +138,8 @@ def browse_look(driver):
         #打印标题
         title = driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/an6").text
         print(title)
-        if title in utils.get_search_title():
-            print("进入搜索页面，开始上下滑动20秒")
-            utils.up_down_roll(20)
-        else:
-            print("检查是不是搜索页面")
-            utils.wait_search(15)
-        one_num = 0
-        #不是搜索页面，就进行点击，并且只划动7次
-        while one_num < 6:
-            if utils.check_page() or utils.check_page("百度一下") or utils.check_page("搜狗搜索"):
-                print("=====进入了搜索页面，滑动，返回")
-                utils.up_down_roll(6)
-                task_num = task_num + 1
-                break
-            else:
-                #获取图片链接
-                images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-                if len(images) == 0:
-                    #使用content-desc来获取
-                    images = driver.find_elements(by=AppiumBy.XPATH, value = "//*[contains(@content-desc, 'sogou')]")
-                if len(images)>0:
-                    if one_num>= len(images):
-                        images[len(images)-1].click()
-                    else:
-                        images[len(images)-1-one_num].click()
-                    print("=====点击图片跳转=====")
-                    time.sleep(2)
-                    #这里需要特殊处理含有弹窗的情况(风细柳斜)
-                    if utils.check_page(feature="close"):
-                        #重新获取图片点击
-                        images = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
-                        images[len(images)-1].click()
-                        time.sleep(1)
-                    #开始上下滑动
-                    utils.up_down_roll(6)
-                    one_num = one_num + 1
-                    #返回
-                    if utils.check_page() or utils.check_page("百度一下") or utils.check_page("搜狗搜索"):
-                        print("=====页面返回=====")
-                        driver.back()
-                    else:
-                        print("=====不是搜索页面不用返回=====")
-                    time.sleep(1)
-                    if utils.check_page() or utils.check_page("百度一下") or utils.check_page("搜狗搜索"):
-                        print("=====搜索页等待自动刷新进入目标首页=====")
-                        time.sleep(15)
-                    else:
-                        print("=====正常首页，不用等待")
-                        time.sleep(1)
-                else:
-                    task_num = task_num + 1
-                    break
+        #普通处理
+        utils.common_kan(1)
         while not utils.check_page('浏览赚'):
             print("=====页面返回=====")
             driver.back()
