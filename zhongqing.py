@@ -2,6 +2,7 @@ from webbrowser import get
 from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
 import time
+import os
 
 class Utils:
     def __init__(self, driver=None) :
@@ -61,6 +62,7 @@ class Utils:
             tmp = tmp + 1
     #####获取广告的图片######
     def get_images(self):
+        self.driver.page_source
         #获取图片链接
         images = self.driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
         if len(images) == 0:
@@ -68,9 +70,12 @@ class Utils:
             images = self.driver.find_elements(by=AppiumBy.XPATH, value = "//*[contains(@content-desc, 'sogou')]")
         return images
     #####普通看看赚处理######
-    def common_kan(self, time):
+    def common_kan(self, time_wait):
         one_num = 0
         while one_num < 6:
+            print(f"=====等待{time_wait}s=====")
+            self.up_down_roll(time_wait)
+            print("=====获取图片=====")
             images = self.get_images()
             if one_num>= len(images):
                 images[len(images)-1].click()
@@ -83,9 +88,10 @@ class Utils:
             #返回
             print("=====页面返回=====")
             driver.back()
-            print(f"=====当前返回等待{time}s")
-            self.up_down_roll(time)
 
+    #需要等待的标题
+    def get_wait_title(self):
+        return ['今日看点']
     #有次首页的标题，需要
     def get_secondary_title(self):
         return ['非凡资讯']
@@ -138,8 +144,13 @@ def browse_look(driver):
         #打印标题
         title = driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/an6").text
         print(title)
+        time_wait = 1
+        if title in utils.get_wait_title():
+            print("=====进入等待标题处理=====")
+            time_wait = 6
+
         #普通处理
-        utils.common_kan(1)
+        utils.common_kan(time_wait)
         while not utils.check_page('浏览赚'):
             print("=====页面返回=====")
             driver.back()
@@ -224,6 +235,9 @@ def get_tasks(driver, tasks_dic):
 if __name__ == "__main__":
     while True:
         try:
+            #关闭相应app
+            os.system("adb -s 7XBNW18901004436 shell am force-stop io.appium.settings")
+            os.system("adb -s 7XBNW18901004436 shell am force-stop io.appium.uiautomator2.server")
             driver = load_driver()
             time.sleep(10)
             # browse_articles(driver)
@@ -231,7 +245,10 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
         finally:
+            #关闭相应app
             driver.quit()
+            os.system("adb -s 7XBNW18901004436 shell am force-stop io.appium.settings")
+            os.system("adb -s 7XBNW18901004436 shell am force-stop io.appium.uiautomator2.server")
     
     
     
