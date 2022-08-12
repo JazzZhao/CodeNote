@@ -118,8 +118,8 @@ def load_driver():
     # 会话配置
     desired_caps = {
             "platformName":"Android",
-            "platformVersion":"10.0.0",
-            "deviceName":"192.168.0.154:5555",
+            "platformVersion":"7.1.2",
+            "deviceName":"127.0.0.1:62001",
             "appPackage":"cn.youth.news",
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
             "noReset": True
@@ -178,7 +178,6 @@ def browse_articles(driver):
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
     num_article = 1
-    flash_flag = True
     while(num_article<=20):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
@@ -208,14 +207,12 @@ def browse_articles(driver):
             #返回
             driver.back()
             num_article = num_article + 1
-        if flash_flag:
+        if not num_article % 5 == 0 :
             #下划
             utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
-            flash_flag = False
         else:
             #点击首页
             driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
-            flash_flag = True
         time.sleep(2)     
 
 #判断是否完成文章任务
@@ -247,14 +244,15 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    for i in range(4):
+    for i in range(3):
         try:
             #关闭相应app
             os.system("adb shell am force-stop io.appium.settings")
             os.system("adb shell am force-stop io.appium.uiautomator2.server")
             driver = load_driver()
             time.sleep(10)
-            browse_articles(driver)
+            for j in range(4):
+                browse_articles(driver)
             browse_look(driver)
         except Exception as e:
             print(e)
