@@ -118,7 +118,7 @@ def load_driver():
     # 会话配置
     desired_caps = {
             "platformName":"Android",
-            "platformVersion":"7.1.2",
+            "platformVersion":"10.0.0",
             "deviceName":"127.0.0.1:62001",
             "appPackage":"cn.youth.news",
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
@@ -134,7 +134,7 @@ def browse_look(driver):
     time.sleep(5)
     #点击看看赚
     print("=====点击看看赚=====")
-    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ac8").click()
+    driver.find_element(by=AppiumBy.XPATH, value = "//*[contains(@text, '看看赚')]").click()
     time.sleep(5)
     #循环下面任务
     task_num = 0
