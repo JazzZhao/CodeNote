@@ -95,7 +95,7 @@ class Utils:
 
     #需要等待的标题
     def get_wait_title(self):
-        return ['今日看点']
+        return ['今日看点','八卦资讯','今日热讯']
     #有次首页的标题，需要
     def get_secondary_title(self):
         return ['非凡资讯']
@@ -127,7 +127,6 @@ def load_driver():
     return webdriver.Remote("http://127.0.0.1:4723/wd/hub",desired_caps)
 #赚赚看
 def browse_look(driver):
-    #TODO 解决首页和搜索页在一起的情况
     print("=====开始浏览看看赚=====")
     utils = Utils(driver)
     #点击任务列表
@@ -189,11 +188,14 @@ def browse_articles(driver):
         print(f"一共找到{len(articles)}篇文章")
         for art in articles:
             print(f"====开始读第{num_article}篇")
+            time.sleep(3)
             #按顺序点击文章
             try:
                 art.click()
             except Exception as e:
                 print("点击文章报错了！上划继续！")
+                #点击首页
+                driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
                 break
             time.sleep(5)
             for _ in range(5):
@@ -244,6 +246,7 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
+    flag = False
     for i in range(3):
         try:
             #关闭相应app
@@ -251,8 +254,10 @@ if __name__ == "__main__":
             os.system("adb shell am force-stop io.appium.uiautomator2.server")
             driver = load_driver()
             time.sleep(10)
-            for j in range(4):
-                browse_articles(driver)
+            if flag:
+                for j in range(2):
+                    browse_articles(driver)
+                flag = False
             browse_look(driver)
         except Exception as e:
             print(e)
@@ -260,4 +265,5 @@ if __name__ == "__main__":
             #关闭相应app
             os.system("adb shell am force-stop io.appium.settings")
             os.system("adb shell am force-stop io.appium.uiautomator2.server")
+            driver.quit()
             
