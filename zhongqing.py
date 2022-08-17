@@ -105,6 +105,9 @@ class Utils:
     #进来先点关闭按键的标题
     def get_close_title(self):
         return []
+    #无法定位图片，需要点击的标题
+    def get_click_title(self):
+        return ['今日资讯']
     #跳过的标题
     def get_jump_title(self):
         return ['手机乐视_乐视视频,...', '网页无法打开']
@@ -118,7 +121,7 @@ def load_driver():
     # 会话配置
     desired_caps = {
             "platformName":"Android",
-            "platformVersion":"10.0.0",
+            "platformVersion":"7.1.2",
             "deviceName":"127.0.0.1:62001",
             "appPackage":"cn.youth.news",
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
@@ -199,12 +202,12 @@ def browse_articles(driver):
                 break
             time.sleep(5)
             for _ in range(5):
-                utils.swipeUp(t=1000)
                 tmp = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.view.View")
                 for quan_num in range(len(tmp)):
                     if(tmp[quan_num].text.find("查看全文") != -1):
                         tmp[quan_num].click()
                         break
+                utils.swipeUp(t=1000)
                 time.sleep(5) 
             #返回
             driver.back()
@@ -252,6 +255,7 @@ if __name__ == "__main__":
             #关闭相应app
             os.system("adb shell am force-stop io.appium.settings")
             os.system("adb shell am force-stop io.appium.uiautomator2.server")
+            os.system("adb shell am force-stop cn.youth.news")
             driver = load_driver()
             time.sleep(10)
             if flag:
@@ -265,5 +269,4 @@ if __name__ == "__main__":
             #关闭相应app
             os.system("adb shell am force-stop io.appium.settings")
             os.system("adb shell am force-stop io.appium.uiautomator2.server")
-            driver.quit()
-            
+            os.system("adb shell am force-stop cn.youth.news")
