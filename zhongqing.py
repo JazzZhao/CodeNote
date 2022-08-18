@@ -71,20 +71,25 @@ class Utils:
         return images
 
     #####普通看看赚处理######
-    def common_kan(self, time_wait):
+    def common_kan(self, time_wait, no_image_flag):
         one_num = 0
         while one_num < 6:
             print(f"=====等待{time_wait}s=====")
             self.up_down_roll(time_wait)
-            print("=====获取图片=====")
-            images = self.get_images()
-            if len(images) == 0:
-                print("=====没有图片=====")
-                return False 
-            if one_num>= len(images):
-                images[len(images)-1].click()
+            if no_image_flag:
+                print("=====无图片处理成功=====")
+                if not self.common_kan_no_image():
+                    return False
             else:
-                images[one_num].click()
+                print("=====获取图片=====")
+                images = self.get_images()
+                if len(images) == 0:
+                    print("=====没有图片=====")
+                    return False 
+                if one_num>= len(images):
+                    images[len(images)-1].click()
+                else:
+                    images[one_num].click()
             one_num = one_num + 1
             print("=====点击图片跳转=====")
             #开始上下滑动
@@ -96,7 +101,23 @@ class Utils:
 
     #####无图片的看看赚点击处理######
     def common_kan_no_image(self):
-        print(123)
+        print("=====进入无图片处理=====")
+        print("=====刷新=====")
+        try:
+            self.driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/t7").click()
+            time.sleep(0.5)
+            self.driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/alo").click()
+            time.sleep(2)
+        except Exception as e:
+            print("=====无法获取刷新=====")
+            self.driver.back()
+            return False
+        l=self.getSize()
+        x1=int(l[0]*0.5)
+        y1=int(l[1]*0.5)
+        #点击中间
+        self.driver.tap([(x1, y1)])
+        return True
 
     #需要等待的标题
     def get_wait_title(self):
@@ -119,14 +140,14 @@ class Utils:
 
     #需要先点击
     def get_click_title(self):
-        return ['巨资讯','一点生活趣事']
+        return ['巨资讯','一点生活趣事','尚瑞咨询',"尚瑞健康咨询", "皖西南新闻网"]
 
 #加载APP
 def load_driver(device_ip):
     # 会话配置
     desired_caps = {
             "platformName":"Android",
-            "platformVersion":"7.1.2",
+            "platformVersion":"10.0.0",
             "deviceName":device_ip,
             "appPackage":"cn.youth.news",
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
@@ -163,11 +184,16 @@ def browse_look(driver):
             print("=====进入等待标题处理=====")
             time_wait = 10
         if title in utils.get_jump_title():
+            print("=====进入跳过标题处理=====")
             driver.back()
             task_num = task_num + 1
             continue
+        no_image_flag = False
+        if title in utils.get_click_title():
+            print("=====进入无图片标题处理=====")
+            no_image_flag = True
         #普通处理
-        is_success = utils.common_kan(time_wait)
+        is_success = utils.common_kan(time_wait, no_image_flag)
         #当前任务没有成功，跳过
         if not is_success:
             task_num = task_num + 1
@@ -255,7 +281,8 @@ def get_tasks(driver, tasks_dic):
 
 if __name__ == "__main__":
     flag = False
-    device_ip = "127.0.0.1:62001"
+    # device_ip = "127.0.0.1:62001"
+    device_ip = "7XBNW18901004436"
     for i in range(3):
         try:
             #关闭相应app
