@@ -69,6 +69,7 @@ class Utils:
             #使用content-desc来获取
             images = self.driver.find_elements(by=AppiumBy.XPATH, value = "//*[contains(@content-desc, 'sogou')]")
         return images
+
     #####普通看看赚处理######
     def common_kan(self, time_wait):
         one_num = 0
@@ -92,6 +93,10 @@ class Utils:
             print("=====页面返回=====")
             driver.back()
         return True
+
+    #####无图片的看看赚点击处理######
+    def common_kan_no_image(self):
+        print(123)
 
     #需要等待的标题
     def get_wait_title(self):
@@ -117,12 +122,12 @@ class Utils:
         return ['巨资讯','一点生活趣事']
 
 #加载APP
-def load_driver():
+def load_driver(device_ip):
     # 会话配置
     desired_caps = {
             "platformName":"Android",
             "platformVersion":"7.1.2",
-            "deviceName":"127.0.0.1:62001",
+            "deviceName":device_ip,
             "appPackage":"cn.youth.news",
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
             "noReset": True
@@ -250,13 +255,14 @@ def get_tasks(driver, tasks_dic):
 
 if __name__ == "__main__":
     flag = False
+    device_ip = "127.0.0.1:62001"
     for i in range(3):
         try:
             #关闭相应app
-            os.system("adb shell am force-stop io.appium.settings")
-            os.system("adb shell am force-stop io.appium.uiautomator2.server")
-            os.system("adb shell am force-stop cn.youth.news")
-            driver = load_driver()
+            os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
+            os.system(f"adb -s {device_ip} shell am force-stop io.appium.uiautomator2.server")
+            os.system(f"adb -s {device_ip} shell am force-stop cn.youth.news")
+            driver = load_driver(device_ip)
             time.sleep(10)
             if flag:
                 for j in range(2):
@@ -267,6 +273,6 @@ if __name__ == "__main__":
             print(e)
         finally:
             #关闭相应app
-            os.system("adb shell am force-stop io.appium.settings")
-            os.system("adb shell am force-stop io.appium.uiautomator2.server")
-            os.system("adb shell am force-stop cn.youth.news")
+            os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
+            os.system(f"adb -s {device_ip} shell am force-stop io.appium.uiautomator2.server")
+            os.system(f"adb -s {device_ip} shell am force-stop cn.youth.news")
