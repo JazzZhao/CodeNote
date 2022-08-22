@@ -110,7 +110,8 @@ class Utils:
             time.sleep(2)
         except Exception as e:
             print("=====无法获取刷新=====")
-            self.driver.back()
+            if not self.check_page('浏览赚'):
+                self.driver.back()
             return False
         l=self.getSize()
         x1=int(l[0]*0.5)
@@ -121,7 +122,7 @@ class Utils:
 
     #需要等待的标题
     def get_wait_title(self):
-        return ['今日看点','八卦资讯','今日热讯']
+        return ['今日看点','八卦资讯','今日热讯',"看点"]
     #有次首页的标题，需要
     def get_secondary_title(self):
         return ['非凡资讯']
@@ -140,16 +141,17 @@ class Utils:
 
     #需要先点击
     def get_click_title(self):
-        return ['巨资讯','一点生活趣事','尚瑞咨询',"尚瑞健康咨询", "皖西南新闻网"]
+        return ['巨资','尚瑞咨询',"尚瑞健康咨询"]
 
 #加载APP
 def load_driver(device_ip):
     # 会话配置
     desired_caps = {
             "platformName":"Android",
-            "platformVersion":"10.0.0",
+            "platformVersion":"7.1.2",
             "deviceName":device_ip,
             "appPackage":"cn.youth.news",
+            "udid":device_ip,
             "appActivity":"cn.youth.news.ui.splash.SplashActivity",
             "noReset": True
     }
@@ -164,7 +166,7 @@ def browse_look(driver):
     #点击看看赚
     print("=====点击看看赚=====")
     driver.find_element(by=AppiumBy.XPATH, value = "//*[contains(@text, '看看赚')]").click()
-    time.sleep(5)
+    time.sleep(20)
     #循环下面任务
     task_num = 0
     t = 0
@@ -280,10 +282,11 @@ def get_tasks(driver, tasks_dic):
 
 
 if __name__ == "__main__":
-    flag = False
+    flag = True
     # device_ip = "127.0.0.1:62001"
-    device_ip = "7XBNW18901004436"
-    for i in range(3):
+    device_ip = "127.0.0.1:62025"
+    # device_ip = "7XBNW18901004436"
+    for i in range(10):
         try:
             #关闭相应app
             os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
@@ -299,6 +302,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
         finally:
+            time.sleep(15)
             #关闭相应app
             os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
             os.system(f"adb -s {device_ip} shell am force-stop io.appium.uiautomator2.server")
