@@ -3,6 +3,7 @@ from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
 import time
 import os
+import threading
 
 class Utils:
     def __init__(self, driver=None) :
@@ -279,12 +280,9 @@ def get_tasks(driver, tasks_dic):
         if text.find("") != -1:
             tasks_dic['video'] = 0
 
-
-
-if __name__ == "__main__":
+def task_thread(device_ip):
+    print(f'=====开始{device_ip}=====')
     flag = True
-    # device_ip = "127.0.0.1:62001"
-    device_ip = "127.0.0.1:62025"
     # device_ip = "7XBNW18901004436"
     for i in range(10):
         try:
@@ -295,7 +293,7 @@ if __name__ == "__main__":
             driver = load_driver(device_ip)
             time.sleep(10)
             if flag:
-                for j in range(2):
+                for j in range(4):
                     browse_articles(driver)
                 flag = False
             browse_look(driver)
@@ -307,3 +305,13 @@ if __name__ == "__main__":
             os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
             os.system(f"adb -s {device_ip} shell am force-stop io.appium.uiautomator2.server")
             os.system(f"adb -s {device_ip} shell am force-stop cn.youth.news")
+
+if __name__ == "__main__":
+    device_ip_me = "127.0.0.1:62001"
+    device_ip = "127.0.0.1:62025"
+    thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
+    thread2=threading.Thread(target=task_thread,args=(device_ip,))
+    start_time=time.time()
+    thread1.start()
+    thread2.start()
+    print('last time:{}'.format(time.time()-start_time))
