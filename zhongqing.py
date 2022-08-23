@@ -72,7 +72,7 @@ class Utils:
         return images
 
     #####普通看看赚处理######
-    def common_kan(self, time_wait, no_image_flag):
+    def common_kan(self, time_wait, no_image_flag, no_back_flag):
         one_num = 0
         while one_num < 6:
             print(f"=====等待{time_wait}s=====")
@@ -81,7 +81,7 @@ class Utils:
                 print("=====无图片处理成功=====")
                 if not self.common_kan_no_image():
                     return False
-            else:
+            elif not no_back_flag:
                 print("=====获取图片=====")
                 images = self.get_images()
                 if len(images) == 0:
@@ -96,8 +96,9 @@ class Utils:
             #开始上下滑动
             self.up_down_roll(8)
             #返回
-            print("=====页面返回=====")
-            driver.back()
+            if not no_back_flag:
+                print("=====页面返回=====")
+                self.driver.back()
         return True
 
     #####无图片的看看赚点击处理######
@@ -195,8 +196,12 @@ def browse_look(driver):
         if title in utils.get_click_title():
             print("=====进入无图片标题处理=====")
             no_image_flag = True
+        no_back_flag = False
+        if (not time_wait ==10) and utils.check_page():
+            print("=====进入滑动搜索页面处理=====")
+            no_back_flag = True
         #普通处理
-        is_success = utils.common_kan(time_wait, no_image_flag)
+        is_success = utils.common_kan(time_wait, no_image_flag,no_back_flag)
         #当前任务没有成功，跳过
         if not is_success:
             task_num = task_num + 1
@@ -282,9 +287,9 @@ def get_tasks(driver, tasks_dic):
 
 def task_thread(device_ip):
     print(f'=====开始{device_ip}=====')
-    flag = True
+    flag = False
     # device_ip = "7XBNW18901004436"
-    for i in range(10):
+    while True:
         try:
             #关闭相应app
             os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
@@ -293,7 +298,7 @@ def task_thread(device_ip):
             driver = load_driver(device_ip)
             time.sleep(10)
             if flag:
-                for j in range(4):
+                for j in range(2):
                     browse_articles(driver)
                 flag = False
             browse_look(driver)
@@ -308,10 +313,9 @@ def task_thread(device_ip):
 
 if __name__ == "__main__":
     device_ip_me = "127.0.0.1:62001"
-    device_ip = "127.0.0.1:62025"
+    device_ip_m = "127.0.0.1:62025"
     thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
-    thread2=threading.Thread(target=task_thread,args=(device_ip,))
+    thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
     start_time=time.time()
     thread1.start()
     thread2.start()
-    print('last time:{}'.format(time.time()-start_time))
