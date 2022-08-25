@@ -96,7 +96,7 @@ class Utils:
             #开始上下滑动
             self.up_down_roll(8)
             #返回
-            if not no_back_flag:
+            if (not no_back_flag) and (not self.check_page('浏览赚')):
                 print("=====页面返回=====")
                 self.driver.back()
         return True
@@ -124,7 +124,7 @@ class Utils:
 
     #需要等待的标题
     def get_wait_title(self):
-        return ['今日看点','八卦资讯','今日热讯',"看点"]
+        return ['今日看点','八卦资讯','今日热讯',"看点","神马广告"]
     #有次首页的标题，需要
     def get_secondary_title(self):
         return ['非凡资讯']
@@ -219,6 +219,7 @@ def browse_articles(driver):
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
     num_article = 1
+    
     while(num_article<=20):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
@@ -287,7 +288,6 @@ def get_tasks(driver, tasks_dic):
 
 def task_thread(device_ip):
     print(f'=====开始{device_ip}=====')
-    flag = False
     # device_ip = "7XBNW18901004436"
     while True:
         try:
@@ -297,10 +297,7 @@ def task_thread(device_ip):
             os.system(f"adb -s {device_ip} shell am force-stop cn.youth.news")
             driver = load_driver(device_ip)
             time.sleep(10)
-            if flag:
-                for j in range(2):
-                    browse_articles(driver)
-                flag = False
+            # browse_articles(driver)
             browse_look(driver)
         except Exception as e:
             print(e)
@@ -315,7 +312,6 @@ if __name__ == "__main__":
     device_ip_me = "127.0.0.1:62001"
     device_ip_m = "127.0.0.1:62025"
     thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
-    thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
-    start_time=time.time()
+    # thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
     thread1.start()
-    thread2.start()
+    # thread2.start()
