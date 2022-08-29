@@ -1,3 +1,5 @@
+import datetime
+from pathlib import Path
 from webbrowser import get
 from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
@@ -212,15 +214,19 @@ def browse_look(driver):
         t = t + 1
 
 #浏览文章 
-def browse_articles(driver):
+def browse_articles(device_ip, driver):
     print("=====开始读取文章=====")
     utils = Utils(driver)
     #点击首页
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
+    today = datetime.datetime.today()
     num_article = 1
-    
-    while(num_article<=20):
+    if Path(today.strftime('%Y%m%d')+device_ip+'.txt').exists():
+        file = open(today.strftime('%Y%m%d')+device_ip+'.txt','r')
+        num_article = (int)(file.readline())
+        file.close()
+    while(num_article<=70):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
         while len(articles) == 0:
@@ -252,6 +258,10 @@ def browse_articles(driver):
             #返回
             driver.back()
             num_article = num_article + 1
+            #写入文件已读
+            file = open(today.strftime('%Y%m%d')+device_ip+'.txt','w')
+            file.write((str)(num_article))
+            file.close()
         if not num_article % 5 == 0 :
             #下划
             utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
@@ -287,31 +297,33 @@ def get_tasks(driver, tasks_dic):
             tasks_dic['video'] = 0
 
 def task_thread(device_ip):
-    print(f'=====开始{device_ip}=====')
-    # device_ip = "7XBNW18901004436"
+    print(f'=====开始{device_ip[0]}=====')
     while True:
         try:
             #关闭相应app
-            os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
-            os.system(f"adb -s {device_ip} shell am force-stop io.appium.uiautomator2.server")
-            os.system(f"adb -s {device_ip} shell am force-stop cn.youth.news")
-            driver = load_driver(device_ip)
+            os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
+            os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.uiautomator2.server")
+            os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
+            driver = load_driver(device_ip[1])
             time.sleep(10)
-            # browse_articles(driver)
+            browse_articles(device_ip[0], driver)
             browse_look(driver)
         except Exception as e:
             print(e)
         finally:
             time.sleep(15)
             #关闭相应app
-            os.system(f"adb -s {device_ip} shell am force-stop io.appium.settings")
-            os.system(f"adb -s {device_ip} shell am force-stop io.appium.uiautomator2.server")
-            os.system(f"adb -s {device_ip} shell am force-stop cn.youth.news")
+            os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
+            os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.uiautomator2.server")
+            os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
 
 if __name__ == "__main__":
-    device_ip_me = "127.0.0.1:62001"
-    device_ip_m = "127.0.0.1:62025"
+    device_ip_me = ["zjt","127.0.0.1:62001"]
+    device_ip_m = ["mwq","127.0.0.1:62025"]
+    device_ip_f = ["zz","127.0.0.1:62026"]
     thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
-    # thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
-    thread1.start()
-    # thread2.start()
+    thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
+    thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
+    thread1.start()   
+    thread2.start()
+    thread3.start()
