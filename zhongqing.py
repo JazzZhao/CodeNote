@@ -58,11 +58,10 @@ class Utils:
 
     #在搜索页面来回划动防止自动刷新
     def up_down_roll(self, num):
-        tmp = 1
-        while tmp <= num:
-            self.swipeUp(start_y=0.55, end_y=0.5, t=0)
-            self.swipeDown(start_y=0.5, end_y=0.55, t=0)
-            tmp = tmp + 1
+        # tmp = 1
+        self.swipeUp(start_y=0.55, end_y=0.5, t=0)
+        self.swipeDown(start_y=0.5, end_y=0.55, t=0)
+        time.sleep(num)
     #####获取广告的图片######
     def get_images(self):
         self.driver.page_source
