@@ -98,7 +98,7 @@ class Utils:
             #开始上下滑动
             self.up_down_roll(4)
             #返回
-            if (not no_back_flag) and (not self.check_page('浏览赚')):
+            if (not self.check_page('浏览赚')):
                 print("=====页面返回=====")
                 self.driver.back()
         return True
