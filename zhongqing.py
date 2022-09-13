@@ -76,7 +76,7 @@ class Utils:
     #####普通看看赚处理######
     def common_kan(self, time_wait, no_image_flag, no_back_flag):
         one_num = 0
-        while one_num < 6:
+        while one_num < 2:
             print(f"=====等待{time_wait}s=====")
             self.up_down_roll(time_wait)
             if no_image_flag:
@@ -96,7 +96,7 @@ class Utils:
             one_num = one_num + 1
             print("=====点击图片跳转=====")
             #开始上下滑动
-            self.up_down_roll(8)
+            self.up_down_roll(4)
             #返回
             if (not no_back_flag) and (not self.check_page('浏览赚')):
                 print("=====页面返回=====")
@@ -188,7 +188,7 @@ def browse_look(driver):
         time_wait = 2
         if title in utils.get_wait_title():
             print("=====进入等待标题处理=====")
-            time_wait = 10
+            time_wait = 5
         if title in utils.get_jump_title():
             print("=====进入跳过标题处理=====")
             driver.back()
@@ -199,7 +199,7 @@ def browse_look(driver):
             print("=====进入无图片标题处理=====")
             no_image_flag = True
         no_back_flag = False
-        if (not time_wait ==10) and utils.check_page():
+        if (not time_wait ==5) and utils.check_page():
             print("=====进入滑动搜索页面处理=====")
             no_back_flag = True
         #普通处理
