@@ -59,9 +59,10 @@ class Utils:
     #在搜索页面来回划动防止自动刷新
     def up_down_roll(self, num):
         # tmp = 1
-        self.swipeUp(start_y=0.55, end_y=0.5, t=0)
-        self.swipeDown(start_y=0.5, end_y=0.55, t=0)
-        time.sleep(num)
+        for i in range(num):
+            self.swipeUp(start_y=0.55, end_y=0.5, t=0)
+            self.swipeDown(start_y=0.5, end_y=0.55, t=0)
+            time.sleep(2)
     #####获取广告的图片######
     def get_images(self):
         self.driver.page_source
@@ -317,12 +318,12 @@ def task_thread(device_ip):
             os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
 
 if __name__ == "__main__":
-    device_ip_me = ["zjt","127.0.0.1:62001"]
+    # device_ip_me = ["zjt","127.0.0.1:62001"]
     device_ip_m = ["mwq","127.0.0.1:62025"]
     device_ip_f = ["zz","127.0.0.1:62026"]
-    thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
+    # thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
     thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
     thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
-    thread1.start()   
+    # thread1.start()   
     thread2.start()
     thread3.start()
