@@ -1,5 +1,7 @@
 import datetime
+from operator import truediv
 from pathlib import Path
+from sys import flags
 from webbrowser import get
 from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
@@ -62,7 +64,12 @@ class Utils:
         for i in range(num):
             self.swipeUp(start_y=0.55, end_y=0.5, t=0)
             self.swipeDown(start_y=0.5, end_y=0.55, t=0)
-            time.sleep(2)
+        # time.sleep(2)
+        # self.swipeUp(start_y=0.55, end_y=0.5, t=0)
+        # self.swipeDown(start_y=0.5, end_y=0.55, t=0)
+        # time.sleep(num-3)
+        # self.swipeUp(start_y=0.55, end_y=0.5, t=0)
+        # self.swipeDown(start_y=0.5, end_y=0.55, t=0)
     #####获取广告的图片######
     def get_images(self):
         self.driver.page_source
@@ -78,6 +85,9 @@ class Utils:
         one_num = 0
         while one_num < 2:
             print(f"=====等待{time_wait}s=====")
+            # self.swipeUp(start_y=0.55, end_y=0.5, t=0)
+            # self.swipeDown(start_y=0.5, end_y=0.55, t=0)
+            # time.sleep(time_wait)
             self.up_down_roll(time_wait)
             if no_image_flag:
                 print("=====无图片处理成功=====")
@@ -88,17 +98,20 @@ class Utils:
                 images = self.get_images()
                 if len(images) == 0:
                     print("=====没有图片=====")
+                    print("=====开始划动=====")
+                    #开始上下滑动
+                    self.up_down_roll(8)
                     return False 
                 if one_num>= len(images):
                     images[len(images)-1].click()
                 else:
                     images[one_num].click()
             one_num = one_num + 1
-            print("=====点击图片跳转=====")
+            print("=====开始划动=====")
             #开始上下滑动
-            self.up_down_roll(4)
+            self.up_down_roll(8)
             #返回
-            if (not self.check_page('浏览赚')):
+            if (not self.check_page('看看赚')):
                 print("=====页面返回=====")
                 self.driver.back()
         return True
@@ -114,7 +127,7 @@ class Utils:
             time.sleep(2)
         except Exception as e:
             print("=====无法获取刷新=====")
-            if not self.check_page('浏览赚'):
+            if not self.check_page('看看赚'):
                 self.driver.back()
             return False
         l=self.getSize()
@@ -141,7 +154,7 @@ class Utils:
         return ['今日资讯']
     #跳过的标题
     def get_jump_title(self):
-        return ['手机乐视_乐视视频,...', '网页无法打开']
+        return ['手机乐视_乐视视频,...', '网页无法打开','一点生活趣事']
 
     #需要先点击
     def get_click_title(self):
@@ -161,7 +174,7 @@ def load_driver(device_ip):
     }
     return webdriver.Remote("http://127.0.0.1:4723/wd/hub",desired_caps)
 #赚赚看
-def browse_look(driver):
+def browse_look(driver, device_ip):
     print("=====开始浏览看看赚=====")
     utils = Utils(driver)
     #点击任务列表
@@ -174,24 +187,29 @@ def browse_look(driver):
     #循环下面任务
     task_num = 0
     t = 0
-    while True:
+    while (utils.check_page(feature = "进行中") or utils.check_page(feature = "去完成")):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
         while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
             task_num = task_num + 1
         print(f"=====找到第{t+1}个任务=====")
         tasks[task_num].click()
         #等待网页刷出来
-        time.sleep(5)
+        utils.up_down_roll(5)
         #打印标题
         title = driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/an6").text
         print(title)
-        time_wait = 2
+        time_wait = 4
         if title in utils.get_wait_title():
             print("=====进入等待标题处理=====")
-            time_wait = 5
+            time_wait = 8
         if title in utils.get_jump_title():
             print("=====进入跳过标题处理=====")
-            driver.back()
+            #开始上下滑动
+            utils.up_down_roll(8)
+            while not utils.check_page('看看赚'):
+                print("=====页面返回=====")
+                driver.back()
+                time.sleep(3)
             task_num = task_num + 1
             continue
         no_image_flag = False
@@ -199,7 +217,7 @@ def browse_look(driver):
             print("=====进入无图片标题处理=====")
             no_image_flag = True
         no_back_flag = False
-        if (not time_wait ==5) and utils.check_page():
+        if (not time_wait ==8) and utils.check_page():
             print("=====进入滑动搜索页面处理=====")
             no_back_flag = True
         #普通处理
@@ -207,12 +225,24 @@ def browse_look(driver):
         #当前任务没有成功，跳过
         if not is_success:
             task_num = task_num + 1
-        while not utils.check_page('浏览赚'):
+        fan_num = 0
+        while not utils.check_page('看看赚') and fan_num < 30:
             print("=====页面返回=====")
             driver.back()
-        time.sleep(3)
+            time.sleep(3)
+            fan_num = fan_num + 1
         t = t + 1
-
+        tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
+    #写入文件已读
+    today = datetime.datetime.today()
+    file = open(today.strftime('%Y%m%d')+device_ip+'看看赚.txt','w')
+    if utils.check_page(feature = "已完成"):
+        file.write("False")
+    else:
+        file.write("True")
+    file.close()
+        
+        
 #浏览文章 
 def browse_articles(device_ip, driver):
     print("=====开始读取文章=====")
@@ -298,7 +328,21 @@ def get_tasks(driver, tasks_dic):
 
 def task_thread(device_ip):
     print(f'=====开始{device_ip[0]}=====')
-    while True:
+    today = datetime.datetime.today()
+    num_article = 1
+    kankan_flag = "True"
+    if Path(today.strftime('%Y%m%d')+device_ip[0]+'.txt').exists():
+        file = open(today.strftime('%Y%m%d')+device_ip[0]+'.txt','r')
+        num_article = (int)(file.readline())
+        file.close()
+    if Path(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt').exists():
+        file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','r')
+        kankan_flag = file.readline()
+        file.close()
+    if num_article <= 70 or kankan_flag == "True":
+        os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
+        time.sleep(30)
+    while num_article<=70 or kankan_flag == "True":
         try:
             #关闭相应app
             os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
@@ -307,23 +351,35 @@ def task_thread(device_ip):
             driver = load_driver(device_ip[1])
             time.sleep(10)
             browse_articles(device_ip[0], driver)
-            browse_look(driver)
+            browse_look(driver,device_ip[0] )
         except Exception as e:
             print(e)
+            if "system running" in e:
+                os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0]+' -quit')
+                time.sleep(10)
+                os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
+                time.sleep(30)
         finally:
-            time.sleep(15)
+            time.sleep(10)
             #关闭相应app
             os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
             os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.uiautomator2.server")
             os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
+            if Path(today.strftime('%Y%m%d')+device_ip[0]+'.txt').exists():
+                file = open(today.strftime('%Y%m%d')+device_ip[0]+'.txt','r')
+                num_article = (int)(file.readline())
+                file.close()
+            if Path(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt').exists():
+                file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','r')
+                kankan_flag = file.readline()
+                file.close()
+    os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0]+' -quit')
 
 if __name__ == "__main__":
-    # device_ip_me = ["zjt","127.0.0.1:62001"]
-    device_ip_m = ["mwq","127.0.0.1:62025"]
-    device_ip_f = ["zz","127.0.0.1:62026"]
-    # thread1=threading.Thread(target=task_thread,args=(device_ip_me,))
-    thread2=threading.Thread(target=task_thread,args=(device_ip_m,))
+    device_ip = ["Nox_0","127.0.0.1:62001"]
+    device_ip_m = ["Nox_1","127.0.0.1:62025"]
+    device_ip_f = ["Nox_2","127.0.0.1:62026"]
     thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
-    # thread1.start()   
-    thread2.start()
     thread3.start()
+    task_thread(device_ip_m)
+    task_thread(device_ip)
