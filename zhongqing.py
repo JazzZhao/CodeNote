@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+from datetime import timedelta
 from operator import truediv
 from pathlib import Path
 from sys import flags
@@ -154,7 +155,7 @@ class Utils:
         return ['今日资讯']
     #跳过的标题
     def get_jump_title(self):
-        return ['手机乐视_乐视视频,...', '网页无法打开','一点生活趣事']
+        return ['手机乐视_乐视视频,...', '网页无法打开','一点生活趣事','标点资讯']
 
     #需要先点击
     def get_click_title(self):
@@ -234,7 +235,7 @@ def browse_look(driver, device_ip):
         t = t + 1
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
     #写入文件已读
-    today = datetime.datetime.today()
+    today = datetime.today()
     file = open(today.strftime('%Y%m%d')+device_ip+'看看赚.txt','w')
     if utils.check_page(feature = "已完成"):
         file.write("False")
@@ -250,7 +251,7 @@ def browse_articles(device_ip, driver):
     #点击首页
     driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
     time.sleep(2)
-    today = datetime.datetime.today()
+    today = datetime.today()
     num_article = 1
     if Path(today.strftime('%Y%m%d')+device_ip+'.txt').exists():
         file = open(today.strftime('%Y%m%d')+device_ip+'.txt','r')
@@ -328,9 +329,14 @@ def get_tasks(driver, tasks_dic):
 
 def task_thread(device_ip):
     print(f'=====开始{device_ip[0]}=====')
-    today = datetime.datetime.today()
+    today = datetime.today()
+    yestoday = today - timedelta(days=1)
     num_article = 1
     kankan_flag = "True"
+    if Path(yestoday.strftime('%Y%m%d')+device_ip[0]+'.txt').exists():
+        os.remove(yestoday.strftime('%Y%m%d')+device_ip[0]+'.txt')
+    if Path(yestoday.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt').exists():
+        os.remove(yestoday.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt')
     if Path(today.strftime('%Y%m%d')+device_ip[0]+'.txt').exists():
         file = open(today.strftime('%Y%m%d')+device_ip[0]+'.txt','r')
         num_article = (int)(file.readline())
@@ -341,7 +347,7 @@ def task_thread(device_ip):
         file.close()
     if num_article <= 70 or kankan_flag == "True":
         os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
-        time.sleep(30)
+        time.sleep(60)
     while num_article<=70 or kankan_flag == "True":
         try:
             #关闭相应app
@@ -354,11 +360,11 @@ def task_thread(device_ip):
             browse_look(driver,device_ip[0] )
         except Exception as e:
             print(e)
-            if "system running" in e:
-                os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0]+' -quit')
-                time.sleep(10)
-                os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
-                time.sleep(30)
+            # if "system running" in e:
+                # os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0]+' -quit')
+                # time.sleep(10)
+                # os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
+                # time.sleep(30)
         finally:
             time.sleep(10)
             #关闭相应app
@@ -379,7 +385,8 @@ if __name__ == "__main__":
     device_ip = ["Nox_0","127.0.0.1:62001"]
     device_ip_m = ["Nox_1","127.0.0.1:62025"]
     device_ip_f = ["Nox_2","127.0.0.1:62026"]
-    thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
-    thread3.start()
+    # thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
+    # thread3.start()
     task_thread(device_ip_m)
+    task_thread(device_ip_f)
     task_thread(device_ip)
