@@ -15,6 +15,7 @@ class Utils:
         self.driver = driver
         #搜索页的关键词
         self.search = ['百度一下','搜狗搜索','javascript:;']
+
     def getSize(self):                               #获取当前的width和height的x、y的值
         x = self.driver.get_window_size()['width']   #width为x坐标
         y = self.driver.get_window_size()['height']  #height为y坐标
@@ -122,9 +123,9 @@ class Utils:
         print("=====进入无图片处理=====")
         print("=====刷新=====")
         try:
-            self.driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/t7").click()
-            time.sleep(0.5)
-            self.driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/alo").click()
+            self.driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/t0").click()
+            # time.sleep(0.5)
+            # self.driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/akp").click()
             time.sleep(2)
         except Exception as e:
             print("=====无法获取刷新=====")
@@ -155,7 +156,7 @@ class Utils:
         return ['今日资讯']
     #跳过的标题
     def get_jump_title(self):
-        return ['手机乐视_乐视视频,...', '网页无法打开','一点生活趣事','标点资讯','今日热讯']
+        return ['手机乐视_乐视视频,...', '网页无法打开','一点生活趣事','标点资讯','今日热讯','今日看点','灵异岛新闻','10754-标点资讯','今日导播',"每日播报","每日新闻"]
 
     #需要先点击
     def get_click_title(self):
@@ -179,35 +180,42 @@ def browse_look(driver, device_ip):
     print("=====开始浏览看看赚=====")
     utils = Utils(driver)
     #点击任务列表
-    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vi").click()
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ui").click()
     time.sleep(5)
     #点击看看赚
     print("=====点击看看赚=====")
     driver.find_element(by=AppiumBy.XPATH, value = "//*[contains(@text, '看看赚')]").click()
-    time.sleep(20)
+    time.sleep(30)
     #循环下面任务
     task_num = 0
     t = 0
     while (utils.check_page(feature = "进行中") or utils.check_page(feature = "去完成")):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
-        while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
-            task_num = task_num + 1
-            if(task_num >= len(tasks)):
-                break
-        if(task_num >= len(tasks)) and t<3:
-            break
+        try:
+            while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
+                task_num = task_num + 1
+        except Exception as e:
+            print(e)
+            if "list index out of range" in str(e):
+                task_num = 0
+                t = 0
+                i = 1
         print(f"=====找到第{t+1}个任务=====")
         tasks[task_num].click()
         #等待网页刷出来
         utils.up_down_roll(5)
         #打印标题
-        title = driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/an6").text
+        title = driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/alt").text
         print(title)
         time_wait = 4
         if title in utils.get_wait_title():
             print("=====进入等待标题处理=====")
             time_wait = 8
-        if title in utils.get_jump_title():
+        jump_flag = False
+        for tmp in utils.get_jump_title():
+            if tmp in title:
+                jump_flag = True
+        if jump_flag:
             print("=====进入跳过标题处理=====")
             #开始上下滑动
             utils.up_down_roll(8)
@@ -220,7 +228,7 @@ def browse_look(driver, device_ip):
             task_num = task_num + 1
             t = t + 1
             continue
-        no_image_flag = False
+        no_image_flag = False 
         if title in utils.get_click_title():
             print("=====进入无图片标题处理=====")
             no_image_flag = True
@@ -249,14 +257,13 @@ def browse_look(driver, device_ip):
     else:
         file.write("True")
     file.close()
-        
-        
+
 #浏览文章 
 def browse_articles(device_ip, driver):
     print("=====开始读取文章=====")
     utils = Utils(driver)
     #点击首页
-    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ug").click()
     time.sleep(2)
     today = datetime.today()
     num_article = 1
@@ -266,12 +273,12 @@ def browse_articles(device_ip, driver):
         file.close()
     while(num_article<=70):
         #获取当前页面的文章
-        articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
+        articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/afb")
         while len(articles) == 0:
             print("没有找到文章")
             utils.swipeUp(t=100)
             time.sleep(2)
-            articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/agh")
+            articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/afb")
         print(f"一共找到{len(articles)}篇文章")
         for art in articles:
             print(f"====开始读第{num_article}篇")
@@ -282,7 +289,7 @@ def browse_articles(device_ip, driver):
             except Exception as e:
                 print("点击文章报错了！上划继续！")
                 #点击首页
-                driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
+                driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ug").click()
                 break
             time.sleep(5)
             for _ in range(5):
@@ -305,7 +312,7 @@ def browse_articles(device_ip, driver):
             utils.swipeUp(start_y=0.9, end_y=0.1,t=1000)
         else:
             #点击首页
-            driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vg").click()
+            driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/ug").click()
         time.sleep(2)     
 
 #浏览视频
@@ -313,7 +320,7 @@ def browse_videos(device_ip, driver):
     print("=====开始读取视频=====")
     utils = Utils(driver)
     #点击视频
-    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/vj").click()
+    driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/uj").click()
     time.sleep(20)
     today = datetime.today()
     num_video = 1
@@ -392,7 +399,7 @@ def task_thread(device_ip):
             os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.uiautomator2.server")
             os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
             driver = load_driver(device_ip[1])
-            time.sleep(10)
+            time.sleep(30)
             browse_articles(device_ip[0], driver)
             browse_videos(device_ip[0], driver)
             browse_look(driver,device_ip[0] )
@@ -435,5 +442,5 @@ if __name__ == "__main__":
     # thread1.start()
     # time.sleep(10)
     task_thread(device_ip_m)
-    task_thread(device_ip_f)
+    # task_thread(device_ip_f)
     task_thread(device_ip)
