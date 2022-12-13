@@ -11,7 +11,7 @@ import os
 import threading
 
 class Utils:
-    def __init__(self, driver=None) :
+    def __init__(self, driver=None):
         self.driver = driver
         #搜索页的关键词
         self.search = ['百度一下','搜狗搜索','javascript:;']
@@ -74,7 +74,6 @@ class Utils:
         # self.swipeDown(start_y=0.5, end_y=0.55, t=0)
     #####获取广告的图片######
     def get_images(self):
-        self.driver.page_source
         #获取图片链接
         images = self.driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.Image")
         if len(images) == 0:
@@ -186,20 +185,22 @@ def browse_look(driver, device_ip):
     print("=====点击看看赚=====")
     driver.find_element(by=AppiumBy.XPATH, value = "//*[contains(@text, '看看赚')]").click()
     time.sleep(30)
+    print("=====页面返回=====")
+    driver.back()
+    if (utils.check_page(feature = "关闭")):
+        print("=====点击关闭=====")
+        driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/afv").click()
+    time.sleep(20)
+    print("=====点击看看赚=====")
+    driver.find_element(by=AppiumBy.XPATH, value = "//*[contains(@text, '看看赚')]").click()
+    time.sleep(50)
     #循环下面任务
     task_num = 0
     t = 0
     while (utils.check_page(feature = "进行中") or utils.check_page(feature = "去完成")):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
-        try:
-            while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
-                task_num = task_num + 1
-        except Exception as e:
-            print(e)
-            if "list index out of range" in str(e):
-                task_num = 0
-                t = 0
-                i = 1
+        while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
+            task_num = task_num + 1
         print(f"=====找到第{t+1}个任务=====")
         tasks[task_num].click()
         #等待网页刷出来
@@ -252,7 +253,7 @@ def browse_look(driver, device_ip):
     #写入文件已读
     today = datetime.today()
     file = open(today.strftime('%Y%m%d')+device_ip+'看看赚.txt','w')
-    if utils.check_page(feature = "已完成"):
+    if (not utils.check_page(feature = "进行中")) and (not utils.check_page(feature = "去完成")) and utils.check_page(feature = "已完成"):
         file.write("False")
     else:
         file.write("True")
@@ -373,26 +374,26 @@ def task_thread(device_ip):
     kankan_flag = "True"
     if Path(yestoday.strftime('%Y%m%d')+device_ip[0]+'.txt').exists():
         os.remove(yestoday.strftime('%Y%m%d')+device_ip[0]+'.txt')
-    if Path(yestoday.strftime('%Y%m%d')+device_ip[0]+'_video.txt').exists():
-        os.remove(yestoday.strftime('%Y%m%d')+device_ip[0]+'_video.txt')
+    # if Path(yestoday.strftime('%Y%m%d')+device_ip[0]+'_video.txt').exists():
+    #     os.remove(yestoday.strftime('%Y%m%d')+device_ip[0]+'_video.txt')
     if Path(yestoday.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt').exists():
         os.remove(yestoday.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt')
     if Path(today.strftime('%Y%m%d')+device_ip[0]+'.txt').exists():
         file = open(today.strftime('%Y%m%d')+device_ip[0]+'.txt','r')
         num_article = (int)(file.readline())
         file.close()
-    if Path(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt').exists():
-        file = open(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt','r')
-        num_video = (int)(file.readline())
-        file.close()
+    # if Path(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt').exists():
+    #     file = open(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt','r')
+    #     num_video = (int)(file.readline())
+    #     file.close()
     if Path(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt').exists():
         file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','r')
         kankan_flag = file.readline()
         file.close()
-    if num_article <= 70 or kankan_flag == "True" or num_video <= 30:
+    if num_article <= 70 or kankan_flag == "True":
         os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
         time.sleep(60)
-    while num_article<=70 or kankan_flag == "True" or num_video <= 30:
+    while num_article<=70 or kankan_flag == "True":
         try:
             #关闭相应app
             os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
@@ -401,7 +402,7 @@ def task_thread(device_ip):
             driver = load_driver(device_ip[1])
             time.sleep(30)
             browse_articles(device_ip[0], driver)
-            browse_videos(device_ip[0], driver)
+            # browse_videos(device_ip[0], driver)
             browse_look(driver,device_ip[0] )
         except Exception as e:
             print(e)
@@ -420,10 +421,10 @@ def task_thread(device_ip):
                 file = open(today.strftime('%Y%m%d')+device_ip[0]+'.txt','r')
                 num_article = (int)(file.readline())
                 file.close()
-            if Path(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt').exists():
-                file = open(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt','r')
-                num_video = (int)(file.readline())
-                file.close()
+            # if Path(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt').exists():
+            #     file = open(today.strftime('%Y%m%d')+device_ip[0]+'_video.txt','r')
+            #     num_video = (int)(file.readline())
+            #     file.close()
             if Path(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt').exists():
                 file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','r')
                 kankan_flag = file.readline()
@@ -432,8 +433,8 @@ def task_thread(device_ip):
 
 if __name__ == "__main__":
     device_ip = ["Nox_0","127.0.0.1:62001"]
-    device_ip_m = ["Nox_1","127.0.0.1:62025"]
-    device_ip_f = ["Nox_2","127.0.0.1:62026"]
+    device_ip_f = ["Nox_1","127.0.0.1:62025"]
+    device_ip_m = ["Nox_2","127.0.0.1:62027"]
     # thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
     # thread3.start()
     # thread2=threading.Thread(target=task_thread,args=(device_ip,))
@@ -442,5 +443,5 @@ if __name__ == "__main__":
     # thread1.start()
     # time.sleep(10)
     task_thread(device_ip_m)
-    # task_thread(device_ip_f)
+    task_thread(device_ip_f)
     task_thread(device_ip)
