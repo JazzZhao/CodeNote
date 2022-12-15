@@ -434,14 +434,13 @@ def task_thread(device_ip):
 if __name__ == "__main__":
     device_ip = ["Nox_0","127.0.0.1:62001"]
     device_ip_f = ["Nox_1","127.0.0.1:62025"]
-    device_ip_m = ["Nox_2","127.0.0.1:62027"]
+    device_ip_m = ["Nox_2","127.0.0.1:62026"]
     # thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
     # thread3.start()
     # thread2=threading.Thread(target=task_thread,args=(device_ip,))
     # thread2.start()
     # thread1=threading.Thread(target=task_thread,args=(device_ip_m,))
     # thread1.start()
-    # time.sleep(10)
     task_thread(device_ip_m)
     task_thread(device_ip_f)
     task_thread(device_ip)
