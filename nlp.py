@@ -77,7 +77,7 @@ def tokenize(lines, token='word'):
     else:
         print('错误，未知词元类型'+token)
 
-def load_corpus_time_machine(max_tokens=-1):  #@save
+def read_corpus_time_machine(max_tokens=-1):  #@save
     """返回时光机器数据集的词元索引列表和词表"""
     lines = read_time_machines()
     tokens = tokenize(lines, 'word')
@@ -125,5 +125,22 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):
         Y = Ys[:,i:i+num_steps]
         yield X, Y
 
+class SeqDataLoader:
+    '''加载序列数据的迭代器'''
+    def __init__(self, batch_size, num_steps, use_random_iter, max_tokens):
+        if use_random_iter:
+            self.data_iter_fn = seq_data_iter_random
+        else:
+            self.data_iter_fn = seq_data_iter_sequential
+        self.corpus, self.vocab = read_corpus_time_machine(max_tokens=max_tokens)
+        self.batch_size, self.num_steps = batch_size, num_steps
+    def __iter__(self):
+      return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
+
+def load_corpus_time_machine(batch_size, num_steps, use_random_iter=False, max_tokens = 10000):
+    data_iter = SeqDataLoader(batch_size, num_steps, use_random_iter, max_tokens)
+    return data_iter, data_iter.vocab
+
 if __name__ == "__main__":
-    load_corpus_time_machine() 
+    train_iter, vocab = load_corpus_time_machine(32, 35)
+    
