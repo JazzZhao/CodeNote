@@ -272,7 +272,7 @@ def browse_articles(device_ip, driver):
         file = open(today.strftime('%Y%m%d')+device_ip+'.txt','r')
         num_article = (int)(file.readline())
         file.close()
-    while(num_article<=70):
+    while(num_article<=80):
         #获取当前页面的文章
         articles = driver.find_elements(by=AppiumBy.ID, value="cn.youth.news:id/afb")
         while len(articles) == 0:
@@ -390,10 +390,10 @@ def task_thread(device_ip):
         file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','r')
         kankan_flag = file.readline()
         file.close()
-    if num_article <= 70 or kankan_flag == "True":
+    if num_article <= 80 or kankan_flag == "True":
         os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
         time.sleep(60)
-    while num_article<=70 or kankan_flag == "True":
+    while num_article<=80 or kankan_flag == "True":
         try:
             #关闭相应app
             os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
