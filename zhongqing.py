@@ -212,7 +212,7 @@ def browse_look(driver, device_ip):
         if title in utils.get_wait_title():
             print("=====进入等待标题处理=====")
             time_wait = 8
-        jump_flag = False
+        jump_flag = True
         for tmp in utils.get_jump_title():
             if tmp in title:
                 jump_flag = True
