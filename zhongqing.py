@@ -196,15 +196,26 @@ def browse_look(driver, device_ip):
     time.sleep(50)
     #循环下面任务
     task_num = 0
-    t = 0
     while (utils.check_page(feature = "进行中") or utils.check_page(feature = "去完成")):
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
-        while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
-            task_num = task_num + 1
-        print(f"=====找到第{t+1}个任务=====")
-        tasks[task_num].click()
+        try:
+            while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
+                task_num = task_num + 1
+            device_ip[2] = device_ip[2] + 1
+            print(f"=====找到第{device_ip[2]}个任务=====")
+            tasks[task_num].click()
+        except Exception as e :
+            if "list index out of range" in str(e) and device_ip[2] != 1:
+                task_num = 0
+                while (tasks[task_num].text.find("进行中") == -1) and (tasks[task_num].text.find("去完成") == -1) :
+                    task_num = task_num + 1
+                device_ip[2] = 1
+                print(f"=====找到第{device_ip[2]}个任务=====")
+                tasks[task_num].click()
+            else:
+                raise e 
         #等待网页刷出来
-        utils.up_down_roll(5)
+        utils.up_down_roll(5) 
         #打印标题
         title = driver.find_element(by=AppiumBy.ID, value="cn.youth.news:id/alt").text
         print(title)
@@ -212,7 +223,7 @@ def browse_look(driver, device_ip):
         if title in utils.get_wait_title():
             print("=====进入等待标题处理=====")
             time_wait = 8
-        jump_flag = True
+        jump_flag = False
         for tmp in utils.get_jump_title():
             if tmp in title:
                 jump_flag = True
@@ -227,7 +238,6 @@ def browse_look(driver, device_ip):
                 time.sleep(3)
                 fan_num = fan_num + 1
             task_num = task_num + 1
-            t = t + 1
             continue
         no_image_flag = False 
         if title in utils.get_click_title():
@@ -240,19 +250,17 @@ def browse_look(driver, device_ip):
         #普通处理
         is_success = utils.common_kan(time_wait, no_image_flag,no_back_flag)
         #当前任务没有成功，跳过
-        if not is_success:
-            task_num = task_num + 1
+        task_num = task_num + 1
         fan_num = 0
         while not utils.check_page('看看赚') and fan_num < 30:
             print("=====页面返回=====")
             driver.back()
             time.sleep(3)
             fan_num = fan_num + 1
-        t = t + 1
         tasks = driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.TextView")
     #写入文件已读
     today = datetime.today()
-    file = open(today.strftime('%Y%m%d')+device_ip+'看看赚.txt','w')
+    file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','w')
     if (not utils.check_page(feature = "进行中")) and (not utils.check_page(feature = "去完成")) and utils.check_page(feature = "已完成"):
         file.write("False")
     else:
@@ -396,21 +404,27 @@ def task_thread(device_ip):
     while num_article<=80 or kankan_flag == "True":
         try:
             #关闭相应app
-            os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
-            os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.uiautomator2.server")
-            os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
+            # os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.settings")
+            # os.system(f"adb -s {device_ip[1]} shell am force-stop io.appium.uiautomator2.server")
+            # os.system(f"adb -s {device_ip[1]} shell am force-stop cn.youth.news")
             driver = load_driver(device_ip[1])
             time.sleep(30)
             browse_articles(device_ip[0], driver)
             # browse_videos(device_ip[0], driver)
-            browse_look(driver,device_ip[0] )
+            device_ip[2] = 0
+            browse_look(driver,device_ip)
         except Exception as e:
             print(e)
-            if "Cannot find any free port in range" in str(e):
+            if "Cannot find any free port in range" in str(e) or "not found" in str(e):
                 os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0]+' -quit')
                 time.sleep(10)
                 os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0])
                 time.sleep(30)
+            if "list index out of range" in str(e) and device_ip[2] == 1:
+                today = datetime.today()
+                file = open(today.strftime('%Y%m%d')+device_ip[0]+'看看赚.txt','w')
+                file.write("False")
+                file.close()
         finally:
             time.sleep(10)
             #关闭相应app
@@ -432,9 +446,9 @@ def task_thread(device_ip):
     os.popen(f'"D:/Program Files/Nox/bin/Nox.exe" -clone:'+device_ip[0]+' -quit')
 
 if __name__ == "__main__":
-    device_ip = ["Nox_0","127.0.0.1:62001"]
-    device_ip_f = ["Nox_1","127.0.0.1:62025"]
-    device_ip_m = ["Nox_2","127.0.0.1:62026"]
+    device_ip = ["Nox_0","127.0.0.1:62001",0]
+    device_ip_f = ["Nox_1","127.0.0.1:62025",0]
+    device_ip_m = ["Nox_2","127.0.0.1:62026",0]
     # thread3=threading.Thread(target=task_thread,args=(device_ip_f,))
     # thread3.start()
     # thread2=threading.Thread(target=task_thread,args=(device_ip,))
