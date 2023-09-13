@@ -1,0 +1,1 @@
+python get_vecter.py --model_dir "./model" --model_name_or_path rocketqa-zh-base-query-encoder --corpus_file "corpus.csv" --device "cpu" --n_clusters 10
