@@ -7,7 +7,10 @@ import torch
 from milvus_utils import (
     VecToMilvus
 )
-from config import embedding_name
+from config import (
+    embedding_name,
+    question_max_len
+    )
 import time
 
 def convert_example(example, batch_size=1):
@@ -18,7 +21,7 @@ def convert_example(example, batch_size=1):
     x_inputs = tokenizer.batch_encode_plus(example, 
                                     return_tensors='pt', 
                                     add_special_tokens=True, 
-                                    max_length=100,
+                                    max_length=question_max_len,
                                     padding='max_length',  # 默认是False  向batch里最长的句子补齐
                                     truncation='longest_first'
                                     )
@@ -75,7 +78,7 @@ class Predictor(object):
             x_inputs = tokenizer.batch_encode_plus(data, 
                                     return_tensors='pt', 
                                     add_special_tokens=True, 
-                                    max_length=100,
+                                    max_length=question_max_len,
                                     padding='max_length',  # 默认是False  向batch里最长的句子补齐
                                     truncation='longest_first'
                                     )

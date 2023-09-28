@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from predict import Predictor
 from milvus_utils import VecToMilvus
+from mysql_utils import Mysql
 from logs import LOGGER
 import time
 import pandas as pd
@@ -27,7 +28,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-batch_size = 1
+batch_size = 32
 
 # 在全局定义 PREDICTOR 对象
 PREDICTOR = None
@@ -37,16 +38,21 @@ MILVUS_CLI = None
 def load_predictor():
     global PREDICTOR
     global MILVUS_CLI
+    global CONN
     # 加载模型
-    PREDICTOR = Predictor("checkpoints/epoch002_valacc0.525_ckpt.tar", batch_size=batch_size)
+    PREDICTOR = Predictor("checkpoints/epoch017_valacc2.953_ckpt.tar", batch_size=batch_size)
     # 加载milvus
     MILVUS_CLI = VecToMilvus()
+    # 加载mysql
+    CONN = Mysql()
+
 
 @app.get('/qa/update_data')
-def do_load_api(file_name: str,company_id:str):
+def do_load_api(company_id:str):
     try:
         #暂时从文件导入，后期做成从mongo数据库中导入
-        data = pd.read_excel(file_name, names=['question', 'answer'], index_col=False)
+        # data = CONN.get_question(company_id=company_id)
+        data = pd.read_csv("corpus.csv", encoding='utf-8',  names=['question'])
         data = data.dropna()
         embeddings = PREDICTOR.predict(data['question'].tolist())
         milvus_data_insert(data,embeddings,batch_size=batch_size,collection_name=collection_name, company_id=company_id, vecToMilvus=MILVUS_CLI)
@@ -75,9 +81,9 @@ async def do_get_answer_api(question: str, company_id:str):
         questions = [question]
         embeddings = PREDICTOR.predict(questions,False)
         results = milvus_data_search(query_embedding=embeddings, collection_name=collection_name, company_id=company_id, vecToMilvus=MILVUS_CLI)
-        time_end = time.time()  
+        time_end = time.time()
         sum_t = time_end - time_start
-        print("search time cost", sum_t, "s") 
+        print("search time cost", sum_t, "s")
         return {'status': True, 'msg': results},200
     except Exception as e:
         LOGGER.error(e)

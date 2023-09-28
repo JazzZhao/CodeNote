@@ -10,7 +10,6 @@ class SimCSE(torch.nn.Module):
                  scale=20,
                  output_emb_size=None,
                  device = "cpu"):
-
         super().__init__()
         self.ptm = ErnieModel.from_pretrained("ernie-3.0-base-zh")
         # 显式的加一个dropout来控制

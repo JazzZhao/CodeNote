@@ -2,6 +2,9 @@ import random
 import numpy as np
 import pandas as pd
 import torch
+from config import (
+    question_max_len
+)
 
 def word_repetition(input_ids, token_type_ids, dup_rate=0.32):
     """Word Repetition strategy."""
@@ -50,7 +53,8 @@ def word_repetition(input_ids, token_type_ids, dup_rate=0.32):
 
 def build_dataset(tokenizer,train_path, batch_size):
     print("*"*27, "start build_dataset")
-    data = pd.read_excel(train_path, names=['content', 'label'], index_col=False)
+    # data = pd.read_excel(train_path, names=['content', 'label'], index_col=False)
+    data = pd.read_csv(train_path, names=['content', 'label'], sep='\t')
     data = data.dropna()
     x_data, y_data = data['content'], data['label']
     print("*"*27, x_data.shape, y_data.shape)
@@ -58,22 +62,22 @@ def build_dataset(tokenizer,train_path, batch_size):
     x_inputs = tokenizer.batch_encode_plus(x_data, 
                                     return_tensors='pt', 
                                     add_special_tokens=True, 
-                                    max_length=1024,
-                                    padding='longest',  # 默认是False  向batch里最长的句子补齐
+                                    max_length=question_max_len,
+                                    padding='max_length',  # 默认是False  向batch里最长的句子补齐
                                     truncation='longest_first'
                                     )
     y_inputs = tokenizer.batch_encode_plus(y_data, 
                                     return_tensors='pt', 
                                     add_special_tokens=True, 
-                                    max_length=1024,
-                                    padding='longest',  # 默认是False  向batch里最长的句子补齐
+                                    max_length=question_max_len,
+                                    padding='max_length',  # 默认是False  向batch里最长的句子补齐
                                     truncation='longest_first'
                                     )
     inp_dset = torch.utils.data.TensorDataset(x_inputs['input_ids'], x_inputs['token_type_ids'], 
                                               y_inputs['input_ids'], y_inputs['token_type_ids'])
     return torch.utils.data.DataLoader(inp_dset,
                                             batch_size=batch_size,
-                                            shuffle=False,
+                                            shuffle=True,
                                             num_workers=2)
     
 

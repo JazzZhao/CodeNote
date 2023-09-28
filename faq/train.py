@@ -15,7 +15,7 @@ def set_seed(seeds):
     torch.cuda.manual_seed_all(seeds)
     torch.backends.cudnn.deterministic = True  # 保证每次结果一样
 
-def do_train(train_data_loader,last_new_checkpoint, save_dir='checkpoints',learning_rate = 1E-6,  margin=0.1, scale=20, output_emb_size=256, epochs = 3, rdrop_coef = 0.1, dup_rate=0.3):
+def do_train(train_data_loader,last_new_checkpoint, save_dir='checkpoints',learning_rate = 1E-80,  margin=0.1, scale=20, output_emb_size=256, epochs = 3, rdrop_coef = 0.1, dup_rate=0.3):
     ngpu = 1
     use_cuda = torch.cuda.is_available()  # 检测是否有可用的gpu
     device = torch.device("cuda:0" if (use_cuda and ngpu > 0) else "cpu")

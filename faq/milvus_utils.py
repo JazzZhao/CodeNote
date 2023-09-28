@@ -7,7 +7,8 @@ from config import (
     data_dim,
     index_config,
     search_params,
-    text_max_len,
+    answer_max_len,
+    question_max_len,
     top_k,
     embedding_name
 )
@@ -40,8 +41,8 @@ class VecToMilvus:
         try:
             fields = [
                 FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=False, max_length=100),
-                FieldSchema(name="question", dtype=DataType.VARCHAR, max_length=text_max_len),
-                FieldSchema(name="answer", dtype=DataType.VARCHAR, max_length=text_max_len),
+                FieldSchema(name="question", dtype=DataType.VARCHAR, max_length=question_max_len),
+                FieldSchema(name="answer", dtype=DataType.VARCHAR, max_length=answer_max_len),
                 FieldSchema(name="embeddings", dtype=DataType.FLOAT_VECTOR, dim=data_dim),
             ]
             schema = CollectionSchema(fields, "Neural Search Index")
